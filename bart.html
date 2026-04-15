@@ -1,0 +1,1713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Balloon Task</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@500;600;700;800&family=Red+Hat+Text:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f4efe6;
+      --panel: rgba(255, 252, 247, 0.95);
+      --ink: #202724;
+      --muted: #67716c;
+      --line: #ddd5c9;
+      --accent: #9a3412;
+      --accent-soft: rgba(154, 52, 18, 0.1);
+      --olive: #315645;
+      --olive-soft: rgba(49, 86, 69, 0.1);
+      --shadow: 0 26px 60px rgba(35, 30, 25, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 18px;
+      font-family: "Red Hat Text", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.55), transparent 28%),
+        linear-gradient(180deg, #dff3ff 0%, #bfe4ff 38%, #eef8ff 100%);
+    }
+
+    .layout {
+      width: min(100%, 1240px);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.8fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid rgba(221, 213, 201, 0.92);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .game-panel {
+      padding: 22px;
+      overflow: hidden;
+    }
+
+    .side-panel {
+      padding: 18px;
+      display: grid;
+      gap: 16px;
+      position: sticky;
+      top: 18px;
+    }
+
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .top-social {
+      margin-bottom: 16px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .pill {
+      padding: 9px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.74);
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    h1,
+    h2,
+    h3,
+    .stat-value,
+    .team-score-value,
+    .leaderboard-score {
+      font-family: "Red Hat Display", "Segoe UI", sans-serif;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(240px, 0.95fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .chamber-card {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(230, 245, 255, 0.96)),
+        radial-gradient(circle at 18% 14%, rgba(255, 255, 255, 0.82), transparent 18%);
+      padding: 20px;
+      min-height: 560px;
+      display: grid;
+      align-items: center;
+      justify-items: center;
+    }
+
+    .chamber-shell {
+      width: min(100%, 410px);
+      aspect-ratio: 1 / 1.28;
+      border-radius: 42px;
+      border: 2px solid rgba(102, 167, 220, 0.26);
+      background:
+        radial-gradient(circle at 78% 18%, rgba(255, 232, 122, 0.92), rgba(255, 232, 122, 0.22) 18%, transparent 19%),
+        linear-gradient(180deg, rgba(180, 228, 255, 0.96), rgba(228, 246, 255, 0.94) 58%, rgba(246, 251, 255, 0.98));
+      box-shadow:
+        inset 0 -30px 44px rgba(122, 199, 255, 0.12),
+        inset 0 14px 28px rgba(255, 255, 255, 0.35);
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      padding-bottom: 12px;
+      isolation: isolate;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+    }
+
+    .chamber-shell::before {
+      content: "";
+      position: absolute;
+      inset: 18px;
+      border-radius: 30px;
+      border: 1px dashed rgba(111, 185, 236, 0.26);
+    }
+
+    .chamber-shell.shake {
+      animation: chamberShake 0.44s ease;
+    }
+
+    @keyframes chamberShake {
+      0% {
+        transform: translateX(0);
+      }
+      18% {
+        transform: translateX(-7px) rotate(-0.7deg);
+      }
+      36% {
+        transform: translateX(7px) rotate(0.7deg);
+      }
+      54% {
+        transform: translateX(-5px) rotate(-0.45deg);
+      }
+      72% {
+        transform: translateX(5px) rotate(0.45deg);
+      }
+      100% {
+        transform: translateX(0) rotate(0deg);
+      }
+    }
+
+    .heat-glow {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.14), transparent 40%),
+        linear-gradient(180deg, transparent 58%, rgba(128, 200, 255, 0.18) 100%);
+      opacity: 1;
+      transform: none;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+      z-index: 0;
+    }
+
+    .kernel-wrap {
+      position: relative;
+      width: 180px;
+      height: 300px;
+      display: grid;
+      place-items: center;
+      z-index: 1;
+    }
+
+    .kernel {
+      width: 112px;
+      height: 144px;
+      border-radius: 52% 52% 48% 48%;
+      background:
+        radial-gradient(circle at 34% 24%, rgba(255, 255, 255, 0.6), transparent 18%),
+        linear-gradient(180deg, #ff8ea5 0%, #ff5d7d 58%, #dc3f67 100%);
+      box-shadow:
+        0 24px 36px rgba(73, 114, 145, 0.18),
+        inset -16px -20px 28px rgba(173, 42, 84, 0.18);
+      position: relative;
+      transition: transform 0.12s ease, filter 0.12s ease;
+      transform-origin: center bottom;
+    }
+
+    .kernel::before {
+      content: "";
+      position: absolute;
+      inset: 16px 26px 24px;
+      border-radius: 999px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .kernel::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -118px;
+      width: 2px;
+      height: 118px;
+      transform: translateX(-50%);
+      background: linear-gradient(180deg, rgba(113, 129, 145, 0.95), rgba(184, 197, 209, 0.7));
+    }
+
+    .kernel-popped {
+      width: 168px;
+      height: 148px;
+      border-radius: 52% 48% 44% 46%;
+      background:
+        radial-gradient(circle at 50% 35%, rgba(255, 255, 255, 0.7), transparent 24%),
+        linear-gradient(180deg, #fff7dc 0%, #f3d38a 100%);
+      box-shadow:
+        0 20px 32px rgba(122, 78, 18, 0.14),
+        inset -14px -18px 24px rgba(180, 134, 50, 0.14);
+      clip-path: polygon(8% 48%, 18% 28%, 34% 18%, 48% 0%, 62% 20%, 83% 14%, 92% 38%, 100% 54%, 84% 70%, 80% 90%, 54% 84%, 38% 100%, 20% 88%, 6% 72%);
+      opacity: 0;
+      transform: scale(0.82);
+      transition: opacity 0.12s ease, transform 0.12s ease;
+      position: absolute;
+    }
+
+    .kernel-wrap.popped .kernel {
+      opacity: 0;
+      transform: scale(0.5);
+    }
+
+    .kernel-wrap.popped .kernel-popped {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .steam {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 1;
+      transition: opacity 0.12s ease;
+    }
+
+    .steam span {
+      position: absolute;
+      top: auto;
+      width: 92px;
+      height: 34px;
+      background:
+        radial-gradient(circle at 22% 55%, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.72) 42%, transparent 43%),
+        radial-gradient(circle at 50% 45%, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.74) 38%, transparent 39%),
+        radial-gradient(circle at 76% 55%, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.72) 36%, transparent 37%);
+      border-radius: 999px;
+      filter: blur(1px);
+      animation: drift 18s linear infinite;
+      opacity: 0.88;
+    }
+
+    .steam span:nth-child(1) {
+      top: 18%;
+      left: 12%;
+    }
+
+    .steam span:nth-child(2) {
+      top: 30%;
+      left: 58%;
+      animation-delay: 2s;
+    }
+
+    .steam span:nth-child(3) {
+      top: 44%;
+      left: 34%;
+      animation-delay: 4s;
+    }
+
+    @keyframes drift {
+      from {
+        transform: translateX(0) scale(0.98);
+      }
+      to {
+        transform: translateX(28px) scale(1.04);
+      }
+    }
+
+    .burner {
+      display: none;
+    }
+
+    .burner::before,
+    .burner::after {
+      display: none;
+    }
+
+    .readout-panel {
+      display: grid;
+      gap: 14px;
+    }
+
+    .timer-card {
+      display: none;
+    }
+
+    .timer-card.show {
+      display: block;
+    }
+
+    .timer-track {
+      width: 100%;
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(154, 52, 18, 0.12);
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .timer-fill {
+      width: 100%;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #0f9d8e, #f59e0b 60%, #dc2626);
+      transform-origin: left center;
+      transition: transform 0.12s linear;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .stat-card,
+    .controls-card,
+    .status-card,
+    .social-card,
+    .leaderboard-card,
+    .activity-card {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.74);
+      padding: 16px;
+    }
+
+    .stat-card strong,
+    .card-title {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+    }
+
+    .stat-value {
+      font-size: 1.45rem;
+      font-weight: 800;
+    }
+
+    .controls {
+      display: grid;
+      gap: 12px;
+    }
+
+    .controls button {
+      border: 0;
+      border-radius: 18px;
+      padding: 15px 18px;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.16s ease, filter 0.16s ease, opacity 0.16s ease;
+    }
+
+    .controls button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      filter: brightness(1.03);
+    }
+
+    .controls button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    #start-trial {
+      background: linear-gradient(135deg, #315645, #3f6b56);
+      color: #fff;
+    }
+
+    #heat-button {
+      background: linear-gradient(135deg, #9a3412, #c2410c);
+      color: #fff;
+    }
+
+    #collect-button {
+      background: linear-gradient(135deg, #0f766e, #0f9d8e);
+      color: #fff;
+    }
+
+    #status-text,
+    .helper,
+    .presence-detail,
+    .leaderboard-detail,
+    .activity-time {
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .top-social.hidden,
+    .social-card.hidden,
+    .leaderboard-card.hidden,
+    .activity-card.hidden {
+      display: none;
+    }
+
+    .presence-list,
+    .leaderboard-list,
+    .activity-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .presence-card,
+    .leaderboard-row,
+    .activity-row {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.88);
+      padding: 12px 14px;
+    }
+
+    .presence-list {
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+
+    .presence-card {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .presence-card.you {
+      border-color: rgba(49, 86, 69, 0.26);
+      background: rgba(49, 86, 69, 0.08);
+    }
+
+    .presence-card.penalty {
+      border-color: rgba(220, 38, 38, 0.34);
+      background: linear-gradient(135deg, rgba(254, 226, 226, 0.98), rgba(254, 202, 202, 0.92));
+      box-shadow: 0 14px 24px rgba(220, 38, 38, 0.12);
+    }
+
+    .presence-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 800;
+      font-size: 1rem;
+    }
+
+    .presence-meta {
+      display: grid;
+      gap: 3px;
+    }
+
+    .presence-name,
+    .leaderboard-name {
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    .presence-score,
+    .leaderboard-score {
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .presence-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.86rem;
+      color: var(--muted);
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #9ca3af;
+      box-shadow: 0 0 0 4px rgba(156, 163, 175, 0.12);
+      flex: 0 0 auto;
+    }
+
+    .status-dot.active {
+      background: #16a34a;
+      box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.12);
+    }
+
+    .status-dot.warn {
+      background: #f59e0b;
+      box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.16);
+    }
+
+    .status-dot.stop {
+      background: #dc2626;
+      box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.12);
+    }
+
+    .leaderboard-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .team-board {
+      display: grid;
+      gap: 14px;
+    }
+
+    .team-score-shell {
+      border: 1px solid rgba(49, 86, 69, 0.16);
+      border-radius: 18px;
+      background: rgba(49, 86, 69, 0.06);
+      padding: 16px;
+      transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+    }
+
+    .team-score-shell.penalty-flash {
+      border-color: rgba(220, 38, 38, 0.34);
+      background: linear-gradient(135deg, rgba(254, 226, 226, 0.98), rgba(254, 202, 202, 0.94));
+      box-shadow: 0 18px 32px rgba(220, 38, 38, 0.16);
+      transform: translateY(-1px);
+    }
+
+    .team-score-value {
+      font-size: 2.3rem;
+      font-weight: 900;
+      color: var(--olive);
+      line-height: 1;
+      margin-bottom: 6px;
+      transition: color 0.14s ease, transform 0.14s ease, text-shadow 0.14s ease;
+    }
+
+    .team-score-value.penalty-drop {
+      color: #b91c1c;
+      transform: translateY(3px) scale(0.96);
+      text-shadow: 0 10px 20px rgba(220, 38, 38, 0.18);
+    }
+
+    .team-mini-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .team-mini-card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.82);
+      padding: 12px;
+    }
+
+    .team-mini-card strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+
+    .team-mini-card span {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    .podium-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .podium-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 12px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.88);
+      padding: 12px 14px;
+    }
+
+    .podium-rank {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      font-size: 1.05rem;
+      font-weight: 900;
+      background: rgba(49, 86, 69, 0.08);
+      color: var(--olive);
+    }
+
+    .podium-row.first .podium-rank {
+      background: rgba(234, 179, 8, 0.16);
+      color: #9a6700;
+    }
+
+    .podium-row.second .podium-rank {
+      background: rgba(148, 163, 184, 0.18);
+      color: #475569;
+    }
+
+    .podium-row.third .podium-rank {
+      background: rgba(180, 83, 9, 0.14);
+      color: #9a3412;
+    }
+
+    .podium-caption {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .activity-row {
+      display: grid;
+      gap: 2px;
+    }
+
+    .activity-main {
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .completion-banner {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(49, 86, 69, 0.18);
+      background: var(--olive-soft);
+      color: #244234;
+      display: none;
+    }
+
+    .completion-banner.show {
+      display: block;
+    }
+
+    .penalty-alert {
+      display: none;
+      margin-top: 12px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(220, 38, 38, 0.28);
+      background: linear-gradient(135deg, rgba(254, 226, 226, 0.98), rgba(254, 202, 202, 0.94));
+      color: #991b1b;
+      box-shadow: 0 16px 28px rgba(220, 38, 38, 0.14);
+      animation: penaltyPulse 0.45s ease;
+    }
+
+    .penalty-alert.show {
+      display: block;
+    }
+
+    .penalty-alert strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 0.84rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    @keyframes penaltyPulse {
+      0% {
+        transform: scale(0.98);
+        opacity: 0;
+      }
+      35% {
+        transform: scale(1.01);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .social-note {
+      margin: 0;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(49, 86, 69, 0.16);
+      background: rgba(49, 86, 69, 0.06);
+      color: #355544;
+      line-height: 1.55;
+    }
+
+    @media (max-width: 1120px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .side-panel {
+        position: static;
+      }
+    }
+
+    @media (max-width: 760px) {
+      body {
+        padding: 12px;
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .chamber-card {
+        min-height: 420px;
+      }
+
+      .chamber-shell {
+        width: min(100%, 320px);
+      }
+
+      .presence-list {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="layout">
+    <section class="panel game-panel">
+      <div class="topbar">
+        <div class="pill" id="stage-pill">Stage</div>
+        <div class="pill" id="condition-pill">Condition</div>
+        <div class="pill" id="presence-pill">Presence</div>
+      </div>
+
+      <section class="top-social" id="top-leaderboard-card">
+        <article class="social-card">
+          <div class="card-title">Session Display</div>
+          <p class="helper" id="presence-message"></p>
+          <div class="presence-list" id="presence-list"></div>
+        </article>
+      </section>
+
+      <div class="hero">
+        <section class="chamber-card">
+          <div class="chamber-shell" id="chamber-shell">
+            <div class="heat-glow" id="heat-glow"></div>
+            <div class="steam" id="steam">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <div class="kernel-wrap" id="kernel-wrap">
+              <div class="kernel" id="kernel"></div>
+              <div class="kernel-popped"></div>
+            </div>
+            <div class="burner"></div>
+          </div>
+        </section>
+
+        <section class="readout-panel">
+          <div class="stat-grid">
+            <article class="stat-card">
+              <strong>Current Trial</strong>
+              <div class="stat-value" id="trial-value">1 / 8</div>
+            </article>
+            <article class="stat-card">
+              <strong>Current Pumps</strong>
+              <div class="stat-value" id="heat-value">0</div>
+            </article>
+            <article class="stat-card">
+              <strong>Current Points</strong>
+              <div class="stat-value" id="points-value">0</div>
+            </article>
+            <article class="stat-card">
+              <strong>Your Score</strong>
+              <div class="stat-value" id="total-score-value">0</div>
+            </article>
+          </div>
+
+          <article class="controls-card">
+            <div class="card-title">Controls</div>
+            <div class="controls">
+              <button id="start-trial">Start Trial</button>
+              <button id="heat-button" disabled>Pump Balloon</button>
+              <button id="collect-button" disabled>Collect Points</button>
+            </div>
+          </article>
+
+          <article class="status-card timer-card" id="timer-card">
+            <div class="card-title">Decision Timer</div>
+            <div id="timer-label">5.0 seconds remaining</div>
+            <div class="timer-track">
+              <div class="timer-fill" id="timer-fill"></div>
+            </div>
+          </article>
+
+          <article class="status-card">
+            <div class="card-title">Task Status</div>
+            <div id="status-text">
+              The balloon is idle. Start the next trial when you are ready.
+            </div>
+            <div class="penalty-alert" id="penalty-alert">
+              <strong>Team penalty</strong>
+              <div id="penalty-alert-text">A penalty update will appear here.</div>
+            </div>
+          </article>
+        </section>
+      </div>
+
+      <div class="completion-banner" id="completion-banner"></div>
+    </section>
+
+    <aside class="panel side-panel">
+      <section class="leaderboard-card" id="leaderboard-card">
+        <div class="card-title">Shared Team Score</div>
+        <div class="team-board">
+          <div class="team-score-shell">
+            <div class="team-score-value" id="team-score-side">0</div>
+            <p class="social-note" id="team-note">
+              In the group rounds, collected points help the whole team and pops can drag the team total down.
+            </p>
+          </div>
+          <div class="team-mini-grid">
+            <div class="team-mini-card">
+              <strong>Your Contribution</strong>
+              <span id="your-contribution-value">0</span>
+            </div>
+            <div class="team-mini-card">
+              <strong>Pop Penalty</strong>
+              <span id="team-penalty-value">5</span>
+            </div>
+          </div>
+          <div class="podium-list" id="leaderboard-list"></div>
+        </div>
+      </section>
+
+      <section class="activity-card" id="activity-card">
+        <div class="card-title">Live Activity</div>
+        <div class="activity-list" id="activity-list"></div>
+      </section>
+    </aside>
+  </main>
+
+  <script>
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzzx63BgfXajXUxv-ChH6xx0XXrvPfbazInYg8m3XSNunSzLm1cS_FNzbPpIUqMeWiX/exec";
+
+    const stage = JSON.parse(localStorage.getItem("bartActiveStage") || "null");
+    const participant = JSON.parse(localStorage.getItem("bartParticipant") || "null");
+    const questionnaire = JSON.parse(localStorage.getItem("bartQuestionnaire") || "null");
+    const stageTrials = JSON.parse(localStorage.getItem("bartActiveRoundTrials") || "[]");
+    const allTrials = JSON.parse(localStorage.getItem("bartTrials") || "[]");
+    const roundSummaries = JSON.parse(localStorage.getItem("bartRoundSummaries") || "[]");
+
+    if (!stage || !participant || !questionnaire) {
+      window.location.href = "./index.html";
+    }
+
+    if (!stage || !participant || !questionnaire) {
+      document.body.innerHTML = `
+        <main class="layout" style="grid-template-columns: 1fr;">
+          <section class="panel game-panel">
+            <div class="topbar">
+              <div class="pill">Balloon Task</div>
+            </div>
+            <h1 style="margin-top: 0;">Experiment state missing</h1>
+            <p>Please return to the entry page and start again.</p>
+          </section>
+        </main>
+      `;
+      throw new Error("Missing active experiment state.");
+    }
+
+    const stagePill = document.getElementById("stage-pill");
+    const conditionPill = document.getElementById("condition-pill");
+    const presencePill = document.getElementById("presence-pill");
+    const trialValue = document.getElementById("trial-value");
+    const heatValue = document.getElementById("heat-value");
+    const pointsValue = document.getElementById("points-value");
+    const totalScoreValue = document.getElementById("total-score-value");
+    const statusText = document.getElementById("status-text");
+    const startTrialButton = document.getElementById("start-trial");
+    const heatButton = document.getElementById("heat-button");
+    const collectButton = document.getElementById("collect-button");
+    const chamberShell = document.getElementById("chamber-shell");
+    const heatGlow = document.getElementById("heat-glow");
+    const steam = document.getElementById("steam");
+    const kernelWrap = document.getElementById("kernel-wrap");
+    const kernel = document.getElementById("kernel");
+    const timerCard = document.getElementById("timer-card");
+    const timerLabel = document.getElementById("timer-label");
+    const timerFill = document.getElementById("timer-fill");
+    const topLeaderboardCard = document.getElementById("top-leaderboard-card");
+    const leaderboardCard = document.getElementById("leaderboard-card");
+    const activityCard = document.getElementById("activity-card");
+    const presenceMessage = document.getElementById("presence-message");
+    const presenceList = document.getElementById("presence-list");
+    const leaderboardList = document.getElementById("leaderboard-list");
+    const activityList = document.getElementById("activity-list");
+    const completionBanner = document.getElementById("completion-banner");
+    const teamScoreSide = document.getElementById("team-score-side");
+    const yourContributionValue = document.getElementById("your-contribution-value");
+    const teamPenaltyValue = document.getElementById("team-penalty-value");
+    const teamNote = document.getElementById("team-note");
+    const teamScoreShell = document.querySelector(".team-score-shell");
+    const penaltyAlert = document.getElementById("penalty-alert");
+    const penaltyAlertText = document.getElementById("penalty-alert-text");
+
+    const isPractice = stage.type === "practice";
+    const isGroup = stage.type === "round" && stage.targetSize > 1;
+    const totalTrials = stage.trialsPerRound || (isPractice ? 4 : 8);
+    const pointsPerHeat = 5;
+    const timedDecisionMs = 5000;
+    const teamPenalty = 5;
+
+    stagePill.textContent = isPractice ? "Practice Block" : `Round ${stage.roundNumber}`;
+    conditionPill.textContent = stage.conditionLabel || stage.condition;
+    presencePill.textContent = isPractice
+      ? "No Social Context"
+      : stage.targetSize === 1
+        ? "Individual Condition"
+        : `${stage.targetSize} Total Participants`;
+
+    if (!isGroup) {
+      topLeaderboardCard.classList.add("hidden");
+      leaderboardCard.classList.add("hidden");
+      activityCard.classList.add("hidden");
+    } else {
+      presenceMessage.textContent = stage.condition === "large_group"
+        ? "You are currently working with other participants. Your round status will appear on the session display, and the team score can rise or fall with each decision."
+        : `You are currently working with ${stage.targetSize - 1} other participants. Collected points help the team total, and pops can pull it down.`;
+      teamPenaltyValue.textContent = formatPoints(teamPenalty);
+      teamNote.textContent = "In the group rounds, collected points help the whole team and pops can reduce the shared total.";
+    }
+
+    let totalScore = stageTrials.reduce((sum, trial) => sum + (trial.points || 0), 0);
+    let teamContribution = stageTrials.reduce((sum, trial) => sum + (trial.teamDelta || 0), 0);
+    let teamScore = Math.max(0, stageTrials.reduce((sum, trial) => sum + (trial.teamDelta || 0), 0));
+    let currentTrialNumber = stageTrials.length + 1;
+    let currentHeat = 0;
+    let currentPoints = 0;
+    let trialActive = false;
+    let stageComplete = false;
+    let simulationTimer = null;
+    let simulatedPlayers = Array.isArray(stage.simulatedPlayers) ? [...stage.simulatedPlayers] : [];
+    let decisionTimerHandle = null;
+    let decisionTimerStartedAt = 0;
+    let penaltyAlertHandle = null;
+    let penaltyFlashHandle = null;
+    let ownPenaltyFlashUntil = 0;
+    let priorityActivity = null;
+    let scoreDropHandle = null;
+    let chamberShakeHandle = null;
+
+    function seeded(seedText) {
+      let seed = 0;
+      for (let index = 0; index < seedText.length; index += 1) {
+        seed = (seed * 31 + seedText.charCodeAt(index)) >>> 0;
+      }
+      return () => {
+        seed = (1664525 * seed + 1013904223) >>> 0;
+        return seed / 4294967296;
+      };
+    }
+
+    function formatPoints(value) {
+      return Number(value || 0).toFixed(0);
+    }
+
+    const humanPopCurve = [0.02, 0.06, 0.11, 0.17, 0.26, 0.38, 0.52, 0.67, 0.81, 0.92];
+    const botPopCurve = [0.015, 0.045, 0.09, 0.15, 0.23, 0.33, 0.46, 0.6, 0.75, 0.88];
+
+    function popChanceForPump(pumpNumber, curve) {
+      const index = Math.max(0, Math.min(pumpNumber - 1, curve.length - 1));
+      return curve[index];
+    }
+
+    function willPopOnPump(pumpNumber, curve) {
+      return Math.random() < popChanceForPump(pumpNumber, curve);
+    }
+
+    function setStatus(message) {
+      statusText.textContent = message;
+    }
+
+    function showPenaltyAlert(message) {
+      if (!isGroup) {
+        return;
+      }
+
+      if (penaltyAlertHandle) {
+        window.clearTimeout(penaltyAlertHandle);
+      }
+
+      penaltyAlertText.textContent = message;
+      penaltyAlert.classList.add("show");
+      if (teamScoreShell) {
+        teamScoreShell.classList.add("penalty-flash");
+      }
+
+      penaltyAlertHandle = window.setTimeout(() => {
+        penaltyAlert.classList.remove("show");
+      }, 2400);
+
+      if (penaltyFlashHandle) {
+        window.clearTimeout(penaltyFlashHandle);
+      }
+
+      penaltyFlashHandle = window.setTimeout(() => {
+        if (teamScoreShell) {
+          teamScoreShell.classList.remove("penalty-flash");
+        }
+      }, 1100);
+    }
+
+    function pushPriorityActivity(message) {
+      if (!isGroup) {
+        return;
+      }
+
+      priorityActivity = {
+        displayName: "Team update",
+        lastEvent: message,
+        lastEventAt: Date.now(),
+        priority: true
+      };
+    }
+
+    function animateTeamScoreDrop() {
+      if (!teamScoreSide) {
+        return;
+      }
+
+      teamScoreSide.classList.add("penalty-drop");
+
+      if (scoreDropHandle) {
+        window.clearTimeout(scoreDropHandle);
+      }
+
+      scoreDropHandle = window.setTimeout(() => {
+        teamScoreSide.classList.remove("penalty-drop");
+      }, 850);
+    }
+
+    function shakeChamber() {
+      if (!chamberShell) {
+        return;
+      }
+
+      chamberShell.classList.remove("shake");
+      void chamberShell.offsetWidth;
+      chamberShell.classList.add("shake");
+
+      if (chamberShakeHandle) {
+        window.clearTimeout(chamberShakeHandle);
+      }
+
+      chamberShakeHandle = window.setTimeout(() => {
+        chamberShell.classList.remove("shake");
+      }, 500);
+    }
+
+    function renderReadout() {
+      trialValue.textContent = `${Math.min(currentTrialNumber, totalTrials)} / ${totalTrials}`;
+      heatValue.textContent = String(currentHeat);
+      pointsValue.textContent = formatPoints(currentPoints);
+      totalScoreValue.textContent = formatPoints(totalScore);
+      if (isGroup) {
+        teamScoreSide.textContent = formatPoints(teamScore);
+        yourContributionValue.textContent = formatPoints(teamContribution);
+      }
+    }
+
+    function renderTimer(remainingMs) {
+      const ratio = Math.max(0, Math.min(remainingMs / timedDecisionMs, 1));
+      timerCard.classList.add("show");
+      timerLabel.textContent = `${(remainingMs / 1000).toFixed(1)} seconds remaining`;
+      timerFill.style.transform = `scaleX(${ratio})`;
+    }
+
+    function stopDecisionTimer() {
+      if (decisionTimerHandle) {
+        window.clearInterval(decisionTimerHandle);
+        decisionTimerHandle = null;
+      }
+    }
+
+    function onDecisionTimerExpired() {
+      stopDecisionTimer();
+      if (!trialActive || stageComplete) {
+        return;
+      }
+
+      if (currentPoints > 0) {
+        setStatus("Time expired. Your current points were automatically collected.");
+        collectPoints(true);
+      } else {
+        setStatus("Time expired before you pumped the balloon. Moving to the next trial.");
+        completeTrial({ popped: false, forcedZero: true });
+      }
+    }
+
+    function startDecisionTimer() {
+      stopDecisionTimer();
+      decisionTimerStartedAt = Date.now();
+      renderTimer(timedDecisionMs);
+      decisionTimerHandle = window.setInterval(() => {
+        const elapsed = Date.now() - decisionTimerStartedAt;
+        const remaining = Math.max(0, timedDecisionMs - elapsed);
+        renderTimer(remaining);
+        if (remaining <= 0) {
+          onDecisionTimerExpired();
+        }
+      }, 100);
+    }
+
+    function renderVisuals() {
+      const ratio = Math.min(currentHeat / 10, 1.1);
+      const scale = 1 + ratio * 0.65;
+      const nextPopChance = popChanceForPump(Math.max(1, currentHeat), humanPopCurve);
+      const tilt = nextPopChance >= 0.38 ? ((currentHeat % 2 === 0) ? 4 : -4) : 0;
+      const heatOpacity = Math.min(0.28 + ratio * 0.4, 0.82);
+      const heatStretch = 1 + ratio * 0.04;
+      const saturation = 1 + ratio * 0.55;
+
+      kernel.style.transform = `scale(${scale}) rotate(${tilt}deg)`;
+      kernel.style.filter = `saturate(${saturation}) drop-shadow(0 10px ${14 + ratio * 24}px rgba(72, 128, 176, 0.22))`;
+      heatGlow.style.opacity = String(heatOpacity);
+      heatGlow.style.transform = `scaleY(${heatStretch})`;
+      steam.style.opacity = "1";
+      chamberShell.style.boxShadow = `inset 0 -30px 44px rgba(122, 199, 255, ${0.12 + ratio * 0.12}), 0 0 0 rgba(0,0,0,0)`;
+    }
+
+    function resetVisualState() {
+      kernelWrap.classList.remove("popped");
+      currentHeat = 0;
+      currentPoints = 0;
+      renderReadout();
+      renderVisuals();
+    }
+
+    async function sendBatchToAppsScript(records) {
+      if (!/^https:\/\//.test(APPS_SCRIPT_URL)) {
+        return;
+      }
+
+      try {
+        await Promise.all(records.map((record) => fetch(APPS_SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: {
+            "Content-Type": "text/plain;charset=utf-8"
+          },
+          body: JSON.stringify(record)
+        })));
+      } catch (error) {
+        console.warn("Apps Script batch logging failed. The experiment will continue.", error);
+      }
+    }
+
+    function saveTrials() {
+      localStorage.setItem("bartActiveRoundTrials", JSON.stringify(stageTrials));
+      localStorage.setItem("bartTrials", JSON.stringify(allTrials));
+      localStorage.setItem("bartRoundSummaries", JSON.stringify(roundSummaries));
+    }
+
+    function combinedPresenceEntries() {
+      const me = {
+        id: participant.participantId,
+        displayName: participant.displayName,
+        score: isGroup ? teamContribution : totalScore,
+        currentTrial: Math.min(currentTrialNumber, totalTrials),
+        status: trialActive ? "Pumping" : stageComplete ? "Finished" : "Waiting",
+        lastEvent: trialActive ? "is pumping" : stageComplete ? "finished the round" : "is ready",
+        penaltyFlashUntil: ownPenaltyFlashUntil
+      };
+
+      return [me, ...simulatedPlayers];
+    }
+
+    function sortedEntries() {
+      return combinedPresenceEntries().sort((a, b) => {
+        if ((b.score || 0) !== (a.score || 0)) {
+          return (b.score || 0) - (a.score || 0);
+        }
+        return String(a.displayName).localeCompare(String(b.displayName));
+      });
+    }
+
+    function renderPresence() {
+      if (!isGroup) {
+        return;
+      }
+
+      presenceList.innerHTML = "";
+      const now = Date.now();
+      sortedEntries().forEach((entry) => {
+        const row = document.createElement("article");
+        const isMe = entry.id === participant.participantId;
+        const status = entry.status || "Waiting";
+        const isPenaltyHighlight = Number(entry.penaltyFlashUntil || 0) > now;
+        const dotClass = /pumping|active/i.test(status)
+          ? "active"
+          : /collected|thinking|waiting|resetting/i.test(status)
+            ? "warn"
+            : /popped|finished/i.test(status)
+              ? "stop"
+              : "";
+        row.className = `presence-card${isMe ? " you" : ""}${isPenaltyHighlight ? " penalty" : ""}`;
+        row.innerHTML = `
+          <div class="presence-avatar">${isMe ? "👤" : "👥"}</div>
+          <div class="presence-meta">
+            <div class="presence-name">${isMe ? "You" : entry.displayName}</div>
+            <div class="presence-status">
+              <span class="status-dot ${dotClass}"></span>
+              <span>${status}</span>
+            </div>
+            <div class="presence-detail">Trial ${Math.min(entry.currentTrial || 1, totalTrials)} of ${totalTrials}</div>
+          </div>
+        `;
+        presenceList.appendChild(row);
+      });
+    }
+
+    function renderLeaderboard() {
+      if (!isGroup) {
+        return;
+      }
+
+      leaderboardList.innerHTML = "";
+      sortedEntries().slice(0, 4).forEach((entry, index) => {
+        const isMe = entry.id === participant.participantId;
+        const row = document.createElement("article");
+        row.className = `podium-row ${index === 0 ? "first" : index === 1 ? "second" : "third"}`;
+        row.innerHTML = `
+          <div class="podium-rank">${isMe ? "👤" : "👥"}</div>
+          <div>
+            <div class="leaderboard-name">${isMe ? "👤 You" : `👥 ${entry.displayName}`}</div>
+            <div class="leaderboard-detail">${entry.lastEvent || entry.status || "Active"}</div>
+            <div class="podium-caption">Contribution so far</div>
+          </div>
+          <div class="leaderboard-score">${formatPoints(entry.score)}</div>
+        `;
+        leaderboardList.appendChild(row);
+      });
+    }
+
+    function renderActivityFeed() {
+      if (!isGroup) {
+        return;
+      }
+
+      const entries = [...simulatedPlayers]
+        .sort((a, b) => (b.lastEventAt || 0) - (a.lastEventAt || 0))
+        .slice(0, 6);
+
+      const mergedEntries = priorityActivity
+        ? [priorityActivity, ...entries].slice(0, 6)
+        : entries;
+
+      activityList.innerHTML = "";
+      mergedEntries.forEach((entry) => {
+        const row = document.createElement("article");
+        const timeLabel = new Date(entry.lastEventAt || Date.now()).toLocaleTimeString([], {
+          hour: "numeric",
+          minute: "2-digit"
+        });
+        row.className = "activity-row";
+        row.innerHTML = `
+          <div class="activity-main">${entry.priority ? entry.lastEvent : `${entry.displayName} ${entry.lastEvent || "is active"}`}</div>
+          <div class="activity-time">${timeLabel}</div>
+        `;
+        activityList.appendChild(row);
+      });
+    }
+
+    function renderSocialPanels() {
+      renderReadout();
+      renderPresence();
+      renderLeaderboard();
+      renderActivityFeed();
+    }
+
+    function simulateOthersTick() {
+      if (!isGroup || stageComplete) {
+        return;
+      }
+
+      simulatedPlayers = simulatedPlayers.map((player) => {
+        if ((player.currentTrial || 1) > totalTrials) {
+          return {
+            ...player,
+            status: "Finished",
+            lastEvent: "finished the round",
+            lastEventAt: player.lastEventAt || Date.now(),
+            penaltyFlashUntil: player.penaltyFlashUntil || 0
+          };
+        }
+
+        const trialNumber = player.currentTrial || 1;
+        const random = seeded(`${stage.sessionId}:${player.id}:${trialNumber}:${Date.now()}`)();
+        let next = { ...player };
+
+        if ((next.currentHeat || 0) === 0 && random < 0.58) {
+          next.currentHeat = 1;
+          next.currentPoints = pointsPerHeat;
+          next.status = "Pumping";
+          next.lastEvent = "is pumping";
+          next.lastEventAt = Date.now();
+          return next;
+        }
+
+        const nextPump = (next.currentHeat || 0) + 1;
+        const botWouldPop = willPopOnPump(nextPump, botPopCurve);
+
+        if (botWouldPop && random < 0.82) {
+          next.currentHeat = 0;
+          next.currentPoints = 0;
+          next.currentTrial = trialNumber + 1;
+          next.status = next.currentTrial > totalTrials ? "Finished" : "Resetting";
+          const penaltyApplied = Math.min(teamPenalty, teamScore);
+          teamScore = Math.max(0, teamScore - penaltyApplied);
+          shakeChamber();
+          animateTeamScoreDrop();
+          next.lastEvent = next.currentTrial > totalTrials ? "finished the round" : `popped and the team lost ${formatPoints(penaltyApplied)}`;
+          next.lastEventAt = Date.now();
+          next.penaltyFlashUntil = Date.now() + 2300;
+          pushPriorityActivity(`${next.displayName} caused a team penalty of ${formatPoints(penaltyApplied)} points.`);
+          return next;
+        }
+
+        if (random < 0.62) {
+          next.currentHeat = nextPump;
+          next.currentPoints = (next.currentPoints || 0) + pointsPerHeat;
+          next.status = "Pumping";
+          next.lastEvent = "is pumping";
+          next.lastEventAt = Date.now();
+          return next;
+        }
+
+        const earnedForTeam = next.currentPoints || 0;
+        next.score = (next.score || 0) + earnedForTeam;
+        teamScore += earnedForTeam;
+        next.currentHeat = 0;
+        next.currentPoints = 0;
+        next.currentTrial = trialNumber + 1;
+        next.status = next.currentTrial > totalTrials ? "Finished" : "Collected";
+        next.lastEvent = next.currentTrial > totalTrials ? "finished the round" : `added ${formatPoints(earnedForTeam)} points to the team`;
+        next.lastEventAt = Date.now();
+        return next;
+      });
+
+      renderSocialPanels();
+    }
+
+    function startSocialSimulation() {
+      if (!isGroup || simulationTimer) {
+        return;
+      }
+
+      renderSocialPanels();
+      simulationTimer = window.setInterval(simulateOthersTick, 1700);
+    }
+
+    function startTrial() {
+      if (stageComplete || currentTrialNumber > totalTrials) {
+        return;
+      }
+
+      currentHeat = 0;
+      currentPoints = 0;
+      trialActive = true;
+      kernelWrap.classList.remove("popped");
+      renderReadout();
+      renderVisuals();
+      renderSocialPanels();
+
+      startTrialButton.disabled = true;
+      heatButton.disabled = false;
+      collectButton.disabled = true;
+      startDecisionTimer();
+
+      setStatus(isPractice
+        ? "Practice trial started. Pump the balloon to build points, then collect before it pops."
+        : "Trial started. Pump the balloon, but decide before the timer runs out.");
+    }
+
+    function completeTrial({ popped, forcedZero = false, teamDelta = 0 }) {
+      stopDecisionTimer();
+      const pointsEarned = popped || forcedZero ? 0 : currentPoints;
+      const trialRecord = {
+        round: stage.roundNumber,
+        stageType: stage.type,
+        condition: stage.condition,
+        conditionLabel: stage.conditionLabel,
+        trial: currentTrialNumber,
+        pumps: currentHeat,
+        popped,
+        points: pointsEarned,
+        isPractice,
+        participantId: participant.participantId,
+        displayName: participant.displayName,
+        questionnaireTotal: questionnaire.totalScore,
+        questionnaireAverage: questionnaire.averageScore,
+        sessionId: stage.sessionId,
+        participantType: "human",
+        teamDelta,
+        teamScoreAfter: isGroup ? teamScore : "",
+        recordedAt: Date.now()
+      };
+
+      stageTrials.push(trialRecord);
+      allTrials.push(trialRecord);
+      saveTrials();
+
+      trialActive = false;
+      currentTrialNumber += 1;
+
+      if (currentTrialNumber > totalTrials) {
+        finishStage();
+      } else {
+        startTrialButton.disabled = false;
+        heatButton.disabled = true;
+        collectButton.disabled = true;
+      }
+
+      renderSocialPanels();
+    }
+
+    function popKernel() {
+      trialActive = false;
+      currentPoints = 0;
+      stopDecisionTimer();
+      kernelWrap.classList.add("popped");
+      shakeChamber();
+      renderReadout();
+      renderVisuals();
+      heatButton.disabled = true;
+      collectButton.disabled = true;
+      startTrialButton.disabled = true;
+      const penaltyApplied = isGroup ? Math.min(teamPenalty, teamScore) : 0;
+      if (isGroup) {
+        teamScore = Math.max(0, teamScore - penaltyApplied);
+        teamContribution -= penaltyApplied;
+        ownPenaltyFlashUntil = Date.now() + 2300;
+        showPenaltyAlert(`Your balloon popped. The team lost ${formatPoints(penaltyApplied)} points.`);
+        animateTeamScoreDrop();
+        pushPriorityActivity(`${participant.displayName} caused a team penalty of ${formatPoints(penaltyApplied)} points.`);
+      }
+      setStatus(isGroup
+        ? `The balloon popped. The team lost ${formatPoints(penaltyApplied)} points from the shared total.`
+        : "The balloon popped. The points from this trial are lost.");
+
+      window.setTimeout(() => {
+        resetVisualState();
+        completeTrial({ popped: true, teamDelta: isGroup ? -penaltyApplied : 0 });
+      }, 950);
+    }
+
+    function collectPoints(autoCollected = false) {
+      if (!trialActive) {
+        return;
+      }
+
+      stopDecisionTimer();
+      totalScore += currentPoints;
+      if (isGroup) {
+        teamScore += currentPoints;
+        teamContribution += currentPoints;
+      }
+      trialActive = false;
+      if (!autoCollected) {
+        setStatus(isGroup
+          ? `You added ${formatPoints(currentPoints)} points to the team before the balloon popped.`
+          : `You collected ${formatPoints(currentPoints)} points before the balloon popped.`);
+      }
+      renderReadout();
+
+      completeTrial({ popped: false, teamDelta: isGroup ? currentPoints : 0 });
+      resetVisualState();
+    }
+
+    function addHeat() {
+      if (!trialActive || stageComplete) {
+        return;
+      }
+
+      currentHeat += 1;
+      currentPoints += pointsPerHeat;
+      renderReadout();
+      renderVisuals();
+      renderSocialPanels();
+      collectButton.disabled = false;
+
+      if (isPractice) {
+        const nextPopChance = popChanceForPump(currentHeat + 1, humanPopCurve);
+        if (nextPopChance >= 0.5) {
+          setStatus("Practice hint: the balloon looks unstable now. Another click could trigger a pop.");
+        } else if (nextPopChance >= 0.2) {
+          setStatus("Practice hint: the balloon is stretching quickly. You can cash out now or keep pressing your luck.");
+        } else {
+          setStatus("Practice hint: each pump adds points, but also increases the hidden risk.");
+        }
+      } else {
+        setStatus(isGroup
+          ? "The balloon grew. More points are at stake for the team, but the pop point stays hidden."
+          : "The balloon grew. The points are rising, but the pop point stays hidden.");
+      }
+
+      if (willPopOnPump(currentHeat, humanPopCurve)) {
+        popKernel();
+      }
+    }
+
+    function computeStageSummary() {
+      const realTrials = stageTrials.filter((trial) => !trial.isPractice);
+      const relevant = isPractice ? stageTrials : realTrials;
+      const nonPopped = relevant.filter((trial) => !trial.popped);
+      const adjustedPumps = nonPopped.length
+        ? nonPopped.reduce((sum, trial) => sum + trial.pumps, 0) / nonPopped.length
+        : 0;
+      const popRate = relevant.length
+        ? relevant.filter((trial) => trial.popped).length / relevant.length
+        : 0;
+      const averageCashOut = nonPopped.length
+        ? nonPopped.reduce((sum, trial) => sum + trial.points, 0) / nonPopped.length
+        : 0;
+      const totalConditionScore = relevant.reduce((sum, trial) => {
+        if (trial.condition === "individual") {
+          return sum + (trial.points || 0);
+        }
+        return sum + (trial.teamDelta || 0);
+      }, 0);
+
+      return {
+        sessionId: stage.sessionId,
+        round: stage.roundNumber,
+        condition: stage.condition,
+        conditionLabel: stage.conditionLabel,
+        isPractice,
+        adjustedPumps,
+        popRate,
+        averageCashOut,
+        totalScore: totalConditionScore,
+        teamMode: isGroup,
+        trialCount: relevant.length,
+        participantId: participant.participantId,
+        displayName: participant.displayName,
+        participantType: "human"
+      };
+    }
+
+    function finishStage() {
+      if (stageComplete) {
+        return;
+      }
+
+      stageComplete = true;
+      trialActive = false;
+      startTrialButton.disabled = true;
+      heatButton.disabled = true;
+      collectButton.disabled = true;
+
+      const summary = computeStageSummary();
+      roundSummaries.push(summary);
+      saveTrials();
+
+      const batchRecords = [
+        ...stageTrials.map((trial) => ({
+          type: "trial",
+          participantId: trial.participantId,
+          displayName: trial.displayName,
+          round: trial.round,
+          condition: trial.condition,
+          trial: trial.trial,
+          isPractice: trial.isPractice,
+          pumps: trial.pumps,
+          popped: trial.popped,
+          pointsEarned: trial.points,
+          teamScoreAfterTrial: trial.teamScoreAfter || "",
+          selfReportRiskTotal: trial.questionnaireTotal,
+          selfReportRiskAverage: trial.questionnaireAverage
+        })),
+        {
+          type: "summary",
+          participantId: summary.participantId,
+          displayName: summary.displayName,
+          round: summary.round,
+          condition: summary.condition,
+          adjustedPumps: summary.adjustedPumps,
+          popRate: summary.popRate,
+          averageCashOut: summary.averageCashOut,
+          totalScore: summary.totalScore,
+          selfReportRiskTotal: questionnaire.totalScore,
+          selfReportRiskAverage: questionnaire.averageScore
+        }
+      ];
+
+      void sendBatchToAppsScript(batchRecords);
+
+      const message = isPractice
+        ? "Practice complete. This block is not included in the final summary."
+        : `${stage.conditionLabel} complete. Adjusted pumps: ${summary.adjustedPumps.toFixed(2)} · Pop rate: ${(summary.popRate * 100).toFixed(1)}% · Score impact: ${formatPoints(summary.totalScore)}.`;
+
+      setStatus(message);
+      completionBanner.textContent = isPractice
+        ? "Practice is complete. You will now move into the real experiment."
+        : isGroup
+          ? "This round is complete. Your individual trial data and team-impact summary have been packaged for batch saving."
+          : "This round is complete. Your round data has been packaged for batch saving.";
+      completionBanner.classList.add("show");
+
+      if (simulationTimer) {
+        window.clearInterval(simulationTimer);
+      }
+
+      stopDecisionTimer();
+
+      window.setTimeout(() => {
+        localStorage.setItem("bartActiveRoundTrials", "[]");
+
+        if (isPractice) {
+          localStorage.setItem("bartPracticeComplete", "true");
+          localStorage.setItem("bartRoundIndex", "0");
+          window.location.href = "./start.html";
+          return;
+        }
+
+        localStorage.setItem("bartRoundIndex", String(Number(stage.roundNumber)));
+        if (stage.roundNumber === 1) {
+          localStorage.setItem("bartPendingGroupIntro", "true");
+        }
+
+        if (stage.roundNumber >= 3) {
+          window.location.href = "./results.html";
+        } else {
+          window.location.href = "./start.html";
+        }
+      }, 1800);
+    }
+
+    function initialize() {
+      renderReadout();
+      renderVisuals();
+
+      if (isPractice) {
+        setStatus("Practice only. These trials do not count toward your final summary.");
+      } else if (stage.targetSize === 1) {
+        setStatus("Individual round ready. No social context is shown in this condition, but each trial is timed.");
+      } else {
+        setStatus("Group round ready. The shared team score is visible and each trial will be timed.");
+        startSocialSimulation();
+      }
+
+      timerCard.classList.add("show");
+      renderTimer(timedDecisionMs);
+
+      renderSocialPanels();
+    }
+
+    startTrialButton.addEventListener("click", startTrial);
+    heatButton.addEventListener("click", addHeat);
+    collectButton.addEventListener("click", collectPoints);
+
+    try {
+      initialize();
+    } catch (error) {
+      console.error(error);
+      document.body.innerHTML = `
+        <main class="layout" style="grid-template-columns: 1fr;">
+          <section class="panel game-panel">
+            <div class="topbar">
+              <div class="pill">Balloon Task</div>
+            </div>
+            <h1 style="margin-top: 0;">Task setup issue</h1>
+            <p>The task could not be initialized. Please return to the entry page and try again.</p>
+          </section>
+        </main>
+      `;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stage Setup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@500;600;700;800&family=Red+Hat+Text:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f7f2e9;
+      --panel: rgba(255, 252, 247, 0.94);
+      --ink: #1b221f;
+      --muted: #62706a;
+      --line: #ded7cd;
+      --accent: #9a3412;
+      --accent-soft: rgba(154, 52, 18, 0.1);
+      --olive: #44624a;
+      --olive-soft: rgba(68, 98, 74, 0.1);
+      --shadow: 0 26px 60px rgba(41, 32, 26, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Red Hat Text", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(154, 52, 18, 0.14), transparent 26%),
+        radial-gradient(circle at bottom right, rgba(68, 98, 74, 0.12), transparent 28%),
+        linear-gradient(180deg, #fbf8f1 0%, var(--bg) 100%);
+      padding: 28px 16px;
+    }
+
+    .shell {
+      width: min(100%, 980px);
+      margin: 0 auto;
+      display: grid;
+      gap: 18px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid rgba(222, 215, 205, 0.9);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      padding: 32px;
+    }
+
+    .hero {
+      display: block;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(2.2rem, 5vw, 3.8rem);
+      line-height: 1;
+      font-family: "Red Hat Display", "Segoe UI", sans-serif;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 1.35rem;
+      font-family: "Red Hat Display", "Segoe UI", sans-serif;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .summary-card,
+    .info-panel,
+    .list-panel {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.76);
+      padding: 20px;
+    }
+
+    .label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+    }
+
+    .value {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 20px;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    .status-box {
+      margin-top: 18px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: var(--accent-soft);
+      border: 1px solid rgba(154, 52, 18, 0.16);
+      color: #7a2d12;
+    }
+
+    .status-box strong {
+      color: #65230f;
+    }
+
+    .group-banner {
+      margin-top: 18px;
+      padding: 16px 18px;
+      border-radius: 18px;
+      background: var(--olive-soft);
+      border: 1px solid rgba(68, 98, 74, 0.16);
+      color: #28412d;
+      display: none;
+    }
+
+    .group-banner.show {
+      display: block;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 14px 20px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .primary {
+      background: linear-gradient(135deg, #9a3412, #c2410c);
+      color: #fff;
+    }
+
+    .secondary {
+      background: #fff;
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+
+    @media (max-width: 860px) {
+      .detail-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 12px;
+      }
+
+      .panel {
+        padding: 22px;
+      }
+
+      .actions {
+        display: grid;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="panel">
+      <div class="hero">
+        <div>
+          <p class="eyebrow">Stage Setup</p>
+          <h1 id="headline">Preparing your next step</h1>
+          <p id="subtitle">
+            The session uses one short practice block followed by three main rounds.
+          </p>
+
+          <div class="summary-grid">
+            <div class="summary-card">
+              <span class="label">Participant</span>
+              <div class="value" id="participant-name">-</div>
+            </div>
+            <div class="summary-card">
+              <span class="label">Stage</span>
+              <div class="value" id="stage-name">-</div>
+            </div>
+            <div class="summary-card">
+              <span class="label">Condition</span>
+              <div class="value" id="condition-name">-</div>
+            </div>
+            <div class="summary-card">
+              <span class="label">Group Size</span>
+              <div class="value" id="group-size">-</div>
+            </div>
+          </div>
+
+          <div class="group-banner" id="group-banner"></div>
+          <div class="status-box" id="status-box">
+            <strong>Status:</strong>
+            <span id="status-text">Ready when you are.</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="detail-grid">
+        <article class="list-panel">
+          <h2>What To Expect</h2>
+          <ul id="expect-list"></ul>
+        </article>
+
+        <article class="info-panel">
+          <h2>Round Structure</h2>
+          <p id="structure-text">
+            Your task setup will appear here.
+          </p>
+        </article>
+      </div>
+
+      <div class="actions">
+        <button class="primary" id="continue-button">Continue</button>
+        <button class="secondary" id="reset-button">Start Over</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const participant = JSON.parse(localStorage.getItem("bartParticipant") || "null");
+    const questionnaire = JSON.parse(localStorage.getItem("bartQuestionnaire") || "null");
+    const practiceComplete = localStorage.getItem("bartPracticeComplete") === "true";
+    const roundIndex = Number(localStorage.getItem("bartRoundIndex") || "0");
+    const pendingGroupIntro = localStorage.getItem("bartPendingGroupIntro") === "true";
+    const storedSessionInfo = JSON.parse(localStorage.getItem("bartSessionInfo") || "null");
+
+    if (!participant || !questionnaire) {
+      window.location.href = "./index.html";
+    }
+
+    const participantName = document.getElementById("participant-name");
+    const stageName = document.getElementById("stage-name");
+    const conditionName = document.getElementById("condition-name");
+    const groupSize = document.getElementById("group-size");
+    const statusText = document.getElementById("status-text");
+    const structureText = document.getElementById("structure-text");
+    const expectList = document.getElementById("expect-list");
+    const groupBanner = document.getElementById("group-banner");
+    const continueButton = document.getElementById("continue-button");
+    const resetButton = document.getElementById("reset-button");
+
+    const ROUND_SEQUENCE = [
+      { roundNumber: 1, condition: "individual", conditionLabel: "Individual", targetSize: 1, trialsPerRound: 8 },
+      { roundNumber: 2, condition: "group_3", conditionLabel: "Group of 3", targetSize: 3, trialsPerRound: 8 },
+      { roundNumber: 3, condition: "group_6", conditionLabel: "Group of 6", targetSize: 6, trialsPerRound: 8 }
+    ];
+
+    function uniqueId(prefix) {
+      return `${prefix}_${Math.random().toString(36).slice(2, 10)}_${Date.now().toString(36)}`;
+    }
+
+    function randomPlayerLabel(seedIndex) {
+      const base = 1000 + Math.floor(Math.random() * 9000);
+      return `Player ${base + seedIndex}`;
+    }
+
+    function getSessionInfo() {
+      if (storedSessionInfo?.sessionId) {
+        return storedSessionInfo;
+      }
+
+      const sessionInfo = {
+        sessionId: uniqueId("session"),
+        createdAt: Date.now()
+      };
+      localStorage.setItem("bartSessionInfo", JSON.stringify(sessionInfo));
+      return sessionInfo;
+    }
+
+    function buildSimulatedPlayers(targetSize) {
+      const others = Math.max(0, targetSize - 1);
+      return Array.from({ length: others }, (_, index) => ({
+        id: uniqueId("bot"),
+        displayName: randomPlayerLabel(index),
+        score: 0,
+        currentTrial: 1,
+        currentHeat: 0,
+        currentPoints: 0,
+        status: "Waiting",
+        lastEvent: "is ready",
+        lastEventAt: Date.now() - (index * 45000),
+        penaltyFlashUntil: 0
+      }));
+    }
+
+    function getNextStage() {
+      if (!practiceComplete) {
+        return {
+          type: "practice",
+          roundNumber: 0,
+          condition: "practice",
+          conditionLabel: "Practice",
+          targetSize: 1,
+          trialsPerRound: 4,
+          simulatedPlayers: []
+        };
+      }
+
+      const nextRound = ROUND_SEQUENCE[roundIndex];
+      if (!nextRound) {
+        window.location.href = "./results.html";
+        return null;
+      }
+
+      return {
+        type: "round",
+        ...nextRound,
+        simulatedPlayers: nextRound.targetSize > 1 ? buildSimulatedPlayers(nextRound.targetSize) : []
+      };
+    }
+
+    function renderExpectations(stage) {
+      const items = [];
+
+      if (stage.type === "practice") {
+        items.push("This is a short four-trial warm-up and does not count toward your final summary.");
+        items.push("Each trial is timed, so make your pump-or-collect decision promptly.");
+        items.push("Use this block to learn how fast the balloon can become risky.");
+      } else if (stage.targetSize === 1) {
+        items.push("This round measures your baseline risk-taking when only your own score is affected.");
+        items.push("This condition keeps your focus on your own decisions and score.");
+        items.push("You will complete eight timed trials before moving forward.");
+      } else if (stage.targetSize === 3) {
+        items.push("Your choices now affect a visible team total shared with two other participants.");
+        items.push("Collected points help the group, and balloon pops can reduce the shared score.");
+        items.push("You will see a live social display while you complete eight timed trials.");
+      } else {
+        items.push("This is the largest social condition, with five other participants in the session.");
+        items.push("Your round status appears in a busier shared environment with the team score always visible.");
+        items.push("You will complete eight timed trials while your decisions influence the whole group total.");
+      }
+
+      expectList.innerHTML = items.map((item) => `<li>${item}</li>`).join("");
+    }
+
+    function renderStage(stage) {
+      participantName.textContent = participant.displayName || "Unknown";
+      stageName.textContent = stage.type === "practice" ? "Practice Block" : `Round ${stage.roundNumber}`;
+      conditionName.textContent = stage.conditionLabel;
+      groupSize.textContent = stage.targetSize === 1 ? "Solo" : `${stage.targetSize} total participants`;
+
+      if (stage.type === "practice") {
+        statusText.textContent = "Practice only. These trials will not be included in the final results page.";
+        structureText.textContent = "You will begin with a four-trial practice block, then move into the three real conditions: Individual, Group of 3, and Group of 6.";
+      } else {
+        statusText.textContent = stage.targetSize === 1
+          ? "Baseline round ready. No social context is shown in this condition."
+          : "Group round ready. The shared team score and session display will be active.";
+        structureText.textContent = `This session uses one practice block followed by three real rounds. You are about to enter ${stage.conditionLabel.toLowerCase()}, which includes ${stage.trialsPerRound} timed trials.`;
+      }
+
+      if (pendingGroupIntro && stage.condition === "group_3") {
+        groupBanner.classList.add("show");
+        groupBanner.textContent = "The experiment now shifts from individual decisions to shared consequences. From this point on, collected points can help the team and pops can reduce the group total.";
+        localStorage.removeItem("bartPendingGroupIntro");
+      } else if (stage.condition === "group_6") {
+        groupBanner.classList.add("show");
+        groupBanner.textContent = "This final condition increases the visible social context. Your decisions still affect the group total, but now in a larger session display.";
+      } else {
+        groupBanner.classList.remove("show");
+        groupBanner.textContent = "";
+      }
+
+      renderExpectations(stage);
+    }
+
+    function createActiveStage(stage) {
+      const sessionInfo = getSessionInfo();
+      return {
+        ...stage,
+        participantId: participant.participantId,
+        displayName: participant.displayName,
+        questionnaireAverage: questionnaire.averageScore,
+        questionnaireTotal: questionnaire.totalScore,
+        sessionId: sessionInfo.sessionId,
+        createdAt: Date.now()
+      };
+    }
+
+    function resetExperimentState() {
+      localStorage.setItem("bartRoundIndex", "0");
+      localStorage.setItem("bartPracticeComplete", "false");
+      localStorage.setItem("bartCurrentCondition", "practice");
+      localStorage.setItem("bartCurrentRound", "0");
+      localStorage.setItem("bartActiveRoundTrials", "[]");
+      localStorage.setItem("bartTrials", "[]");
+      localStorage.setItem("bartRoundSummaries", "[]");
+      localStorage.removeItem("bartActiveStage");
+      localStorage.removeItem("bartPendingGroupIntro");
+      localStorage.removeItem("bartSessionInfo");
+      window.location.href = "./index.html";
+    }
+
+    const currentStage = getNextStage();
+    if (currentStage) {
+      renderStage(currentStage);
+    }
+
+    continueButton.addEventListener("click", () => {
+      if (!currentStage) {
+        return;
+      }
+
+      const activeStage = createActiveStage(currentStage);
+      localStorage.setItem("bartActiveStage", JSON.stringify(activeStage));
+      localStorage.setItem("bartActiveRoundTrials", "[]");
+      localStorage.setItem("bartCurrentCondition", activeStage.condition);
+      localStorage.setItem("bartCurrentRound", String(activeStage.roundNumber));
+      window.location.href = "./bart.html";
+    });
+
+    resetButton.addEventListener("click", resetExperimentState);
+  </script>
+</body>
+</html>

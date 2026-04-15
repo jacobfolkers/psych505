@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Balloon Session</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@500;600;700;800&family=Red+Hat+Text:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f7f2e9;
+      --panel: rgba(255, 252, 247, 0.94);
+      --ink: #1b221f;
+      --muted: #62706a;
+      --line: #ded7cd;
+      --accent: #9a3412;
+      --accent-soft: rgba(154, 52, 18, 0.1);
+      --olive: #44624a;
+      --shadow: 0 26px 60px rgba(41, 32, 26, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Red Hat Text", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(154, 52, 18, 0.14), transparent 26%),
+        radial-gradient(circle at bottom right, rgba(68, 98, 74, 0.12), transparent 28%),
+        linear-gradient(180deg, #fbf8f1 0%, var(--bg) 100%);
+      padding: 28px 16px;
+    }
+
+    .shell {
+      width: min(100%, 980px);
+      margin: 0 auto;
+      display: grid;
+      gap: 18px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid rgba(222, 215, 205, 0.9);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      padding: 32px;
+    }
+
+    .hero {
+      display: block;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(2.2rem, 5vw, 3.9rem);
+      line-height: 1;
+      font-family: "Red Hat Display", "Segoe UI", sans-serif;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .grid {
+      display: grid;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .field-card,
+    .question-card {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.72);
+      padding: 22px;
+    }
+
+    .field-row {
+      display: grid;
+      gap: 10px;
+    }
+
+    label,
+    .question-title {
+      font-weight: 700;
+      color: var(--ink);
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 15px 16px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #fffdfa;
+      font: inherit;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(154, 52, 18, 0.1);
+    }
+
+    .helper {
+      margin-top: 10px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: var(--accent-soft);
+      color: #7a2d12;
+      font-size: 0.95rem;
+    }
+
+    .question-grid {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .question-card p {
+      margin-bottom: 14px;
+    }
+
+    .scale {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .scale-option {
+      position: relative;
+    }
+
+    .scale-option input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .scale-option label {
+      margin: 0;
+      min-height: 54px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: #fff;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      text-align: center;
+      padding: 10px 8px;
+      font-size: 0.95rem;
+      line-height: 1.3;
+      transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+    }
+
+    .scale-option input:checked + label {
+      background: rgba(68, 98, 74, 0.11);
+      border-color: var(--olive);
+      color: #24412a;
+      transform: translateY(-2px);
+    }
+
+    .summary-row {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .summary-box {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.78);
+      padding: 16px;
+    }
+
+    .summary-box strong {
+      display: block;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .summary-box span {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 16px 24px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.16s ease, filter 0.16s ease;
+    }
+
+    .primary {
+      background: linear-gradient(135deg, #9a3412, #c2410c);
+      color: #fff;
+      box-shadow: 0 16px 30px rgba(154, 52, 18, 0.22);
+    }
+
+    .secondary {
+      background: #fffdfa;
+      color: var(--ink);
+      border: 1px solid var(--line);
+      box-shadow: 0 10px 24px rgba(41, 32, 26, 0.08);
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.04);
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 16px 10px;
+      }
+
+      .panel {
+        padding: 22px;
+      }
+
+      .scale {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+      }
+
+      .scale-option label {
+        font-size: 0.82rem;
+      }
+
+      .actions {
+        justify-content: stretch;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="panel hero">
+      <div>
+        <p class="eyebrow">Behavioral Decision Task</p>
+        <h1>Balloon Session</h1>
+        <p>
+          This session includes a timed balloon task followed by
+          a few brief rounds under different session displays. Begin by setting
+          your display name and completing a short questionnaire.
+        </p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="grid">
+        <article class="field-card">
+          <div class="field-row">
+            <label for="display-name">Participant ID or nickname</label>
+            <input
+              id="display-name"
+              type="text"
+              maxlength="40"
+              autocomplete="off"
+              placeholder="Player 4821"
+            />
+            <div class="helper" id="name-preview">
+              If left blank, the app will generate a visible name such as “Player 4821”.
+            </div>
+          </div>
+        </article>
+
+        <article class="field-card">
+          <span class="question-title">Baseline risk appraisal</span>
+          <p>
+            Use the 1 to 5 scale below. Higher values indicate stronger agreement.
+            One item is reverse-scored to help create a more balanced index.
+          </p>
+
+          <div class="question-grid" id="question-grid"></div>
+
+          <div class="summary-row">
+            <div class="summary-box">
+              <strong>Questionnaire note</strong>
+              <span>Your questionnaire responses will be saved and included in the final results screen after the session ends.</span>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <div class="actions">
+        <button class="secondary" id="new-participant-button" type="button">New Participant</button>
+        <button class="primary" id="continue-button" type="button">Continue to Practice</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const QUESTION_ITEMS = [
+      {
+        id: "enjoy_risk",
+        prompt: "I enjoy taking risks.",
+        reverseScored: false
+      },
+      {
+        id: "comfortable_uncertainty",
+        prompt: "I am comfortable with uncertainty.",
+        reverseScored: false
+      },
+      {
+        id: "choose_exciting",
+        prompt: "I often choose exciting options even when they are less safe.",
+        reverseScored: false
+      },
+      {
+        id: "prefer_cautious",
+        prompt: "I prefer cautious decisions.",
+        reverseScored: true
+      },
+      {
+        id: "recover_from_losses",
+        prompt: "A possible setback does not stop me from trying again.",
+        reverseScored: false
+      },
+      {
+        id: "push_limits",
+        prompt: "I like to push right up to the edge before backing off.",
+        reverseScored: false
+      }
+    ];
+
+    const SCALE_LABELS = [
+      "1<br>Strongly disagree",
+      "2",
+      "3",
+      "4",
+      "5<br>Strongly agree"
+    ];
+
+    const nameInput = document.getElementById("display-name");
+    const namePreview = document.getElementById("name-preview");
+    const questionGrid = document.getElementById("question-grid");
+    const continueButton = document.getElementById("continue-button");
+    const newParticipantButton = document.getElementById("new-participant-button");
+
+    let storedParticipant = JSON.parse(localStorage.getItem("bartParticipant") || "null");
+    let storedQuestionnaire = JSON.parse(localStorage.getItem("bartQuestionnaire") || "null");
+    let currentGeneratedDisplayName = "";
+    const AUTO_NAME_PATTERN = /^Player \d{4}$/;
+
+    function isAutoGeneratedParticipantName(participantRecord) {
+      if (!participantRecord?.displayName) {
+        return false;
+      }
+      if (participantRecord.wasAutoGeneratedName === true) {
+        return true;
+      }
+      if (participantRecord.wasAutoGeneratedName === false) {
+        return false;
+      }
+      return AUTO_NAME_PATTERN.test(String(participantRecord.displayName).trim());
+    }
+
+    function randomDisplayName() {
+      return `Player ${Math.floor(1000 + Math.random() * 9000)}`;
+    }
+
+    function uniqueParticipantId() {
+      const stamp = Date.now().toString(36);
+      const rand = Math.random().toString(36).slice(2, 8);
+      return `human-${stamp}-${rand}`;
+    }
+
+    function buildQuestionnaire() {
+      questionGrid.innerHTML = "";
+      QUESTION_ITEMS.forEach((item, itemIndex) => {
+        const values = storedQuestionnaire?.responses?.[item.id];
+        const card = document.createElement("article");
+        card.className = "question-card";
+
+        const scaleHtml = SCALE_LABELS.map((label, index) => {
+          const value = index + 1;
+          const inputId = `${item.id}-${value}`;
+          const isChecked = Number(values) === value || (!storedQuestionnaire && value === 3);
+          return `
+            <div class="scale-option">
+              <input id="${inputId}" name="${item.id}" type="radio" value="${value}" ${isChecked ? "checked" : ""} />
+              <label for="${inputId}">${label}</label>
+            </div>
+          `;
+        }).join("");
+
+        card.innerHTML = `
+          <div class="question-title">Item ${itemIndex + 1}</div>
+          <p>${item.prompt}${item.reverseScored ? " This item is reverse-scored." : ""}</p>
+          <div class="scale">${scaleHtml}</div>
+        `;
+        questionGrid.appendChild(card);
+      });
+    }
+
+    function collectQuestionnaire() {
+      const responses = {};
+      let totalScore = 0;
+
+      QUESTION_ITEMS.forEach((item) => {
+        const selected = document.querySelector(`input[name="${item.id}"]:checked`);
+        const rawValue = Number(selected?.value || 3);
+        const scoredValue = item.reverseScored ? 6 - rawValue : rawValue;
+        responses[item.id] = rawValue;
+        totalScore += scoredValue;
+      });
+
+      const averageScore = totalScore / QUESTION_ITEMS.length;
+
+      return {
+        itemCount: QUESTION_ITEMS.length,
+        responses,
+        totalScore,
+        averageScore,
+        items: QUESTION_ITEMS
+      };
+    }
+
+    function updateNamePreview() {
+      const trimmed = nameInput.value.trim();
+      namePreview.textContent = trimmed
+        ? `Your visible display name will be “${trimmed}”.`
+        : "If left blank, the app will generate a visible name such as “Player 4821”.";
+    }
+
+    function resetExperimentState() {
+      localStorage.setItem("bartRoundIndex", "0");
+      localStorage.setItem("bartPracticeComplete", "false");
+      localStorage.setItem("bartCurrentCondition", "practice");
+      localStorage.setItem("bartCurrentRound", "0");
+      localStorage.setItem("bartActiveRoundTrials", "[]");
+      localStorage.setItem("bartTrials", "[]");
+      localStorage.setItem("bartRoundSummaries", "[]");
+      localStorage.removeItem("bartActiveStage");
+      localStorage.removeItem("bartSessionInfo");
+    }
+
+    function clearStoredIdentity() {
+      localStorage.removeItem("displayName");
+      localStorage.removeItem("participantId");
+      localStorage.removeItem("bartParticipant");
+      localStorage.removeItem("bartQuestionnaire");
+      storedParticipant = null;
+      storedQuestionnaire = null;
+    }
+
+    if (isAutoGeneratedParticipantName(storedParticipant)) {
+      clearStoredIdentity();
+      resetExperimentState();
+    }
+
+    function seedDisplayName() {
+      if (storedParticipant?.displayName && !isAutoGeneratedParticipantName(storedParticipant)) {
+        currentGeneratedDisplayName = "";
+        nameInput.value = storedParticipant.displayName;
+        return;
+      }
+
+      currentGeneratedDisplayName = randomDisplayName();
+      nameInput.value = currentGeneratedDisplayName;
+    }
+
+    buildQuestionnaire();
+    seedDisplayName();
+    updateNamePreview();
+
+    nameInput.addEventListener("input", updateNamePreview);
+
+    newParticipantButton.addEventListener("click", () => {
+      clearStoredIdentity();
+      seedDisplayName();
+      buildQuestionnaire();
+      updateNamePreview();
+      nameInput.select();
+      nameInput.focus();
+    });
+
+    continueButton.addEventListener("click", () => {
+      const enteredName = nameInput.value.trim();
+      const wasAutoGeneratedName = !enteredName || enteredName === currentGeneratedDisplayName;
+      const displayName = enteredName || currentGeneratedDisplayName || randomDisplayName();
+      const storedNameWasAutoGenerated = isAutoGeneratedParticipantName(storedParticipant);
+      const participantId = wasAutoGeneratedName
+        ? uniqueParticipantId()
+        : storedNameWasAutoGenerated
+          ? uniqueParticipantId()
+          : storedParticipant?.participantId || uniqueParticipantId();
+      const questionnaire = collectQuestionnaire();
+
+      const participant = {
+        displayName,
+        participantId,
+        wasAutoGeneratedName,
+        createdAt: wasAutoGeneratedName
+          ? Date.now()
+          : storedNameWasAutoGenerated
+            ? Date.now()
+            : storedParticipant?.createdAt || Date.now()
+      };
+
+      localStorage.setItem("displayName", displayName);
+      localStorage.setItem("participantId", participantId);
+      localStorage.setItem("bartParticipant", JSON.stringify(participant));
+      localStorage.setItem("bartQuestionnaire", JSON.stringify({
+        ...questionnaire,
+        completedAt: Date.now()
+      }));
+
+      resetExperimentState();
+      window.location.href = "./start.html";
+    });
+  </script>
+</body>
+</html>
