@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Experiment Results</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@500;600;700;800&family=Red+Hat+Text:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+  <style>
+    :root {
+      --bg: #f6efe6;
+      --panel: rgba(255, 252, 247, 0.95);
+      --ink: #202724;
+      --muted: #67716c;
+      --line: #ddd5c9;
+      --shadow: 0 26px 60px rgba(35, 30, 25, 0.1);
+      --individual: #7f1d1d;
+      --group-3: #b91c1c;
+      --group-6: #dc2626;
+      --accent: #c85f39;
+      --accent-deep: #8f3215;
+      --soft-green: rgba(49, 86, 69, 0.08);
+      --soft-orange: rgba(154, 52, 18, 0.08);
+      --paper: #fffdfa;
+      --red-1: #7f1d1d;
+      --red-2: #b91c1c;
+      --red-3: #dc2626;
+      --red-4: #f97316;
+      --red-soft: rgba(185, 28, 28, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 24px;
+      font-family: "Red Hat Text", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(154, 52, 18, 0.11), transparent 24%),
+        radial-gradient(circle at bottom right, rgba(29, 78, 216, 0.08), transparent 28%),
+        linear-gradient(180deg, #fcfaf6 0%, var(--bg) 100%);
+    }
+
+    .page {
+      width: min(100%, 1120px);
+      margin: 0 auto;
+      display: grid;
+      gap: 18px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid rgba(221, 213, 201, 0.92);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      padding: 28px;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0 0 10px;
+      font-family: "Red Hat Display", "Segoe UI", sans-serif;
+      color: var(--ink);
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.85fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .hero-copy {
+      padding: 4px 0 0;
+    }
+
+    .hero-copy h1 {
+      font-size: clamp(2.3rem, 4.5vw, 4.3rem);
+      line-height: 0.98;
+      letter-spacing: -0.03em;
+      margin-bottom: 14px;
+    }
+
+    .hero-copy p {
+      max-width: 62ch;
+      font-size: 1.04rem;
+    }
+
+    .feature-card {
+      border: 1px solid rgba(154, 52, 18, 0.16);
+      border-radius: 26px;
+      padding: 22px;
+      background:
+        radial-gradient(circle at top right, rgba(200, 95, 57, 0.16), transparent 32%),
+        linear-gradient(180deg, rgba(255, 249, 244, 0.98), rgba(249, 241, 234, 0.94));
+      display: grid;
+      align-content: start;
+      gap: 12px;
+      min-height: 100%;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    }
+
+    .feature-label {
+      margin: 0;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--accent-deep);
+    }
+
+    .feature-tagline {
+      margin: 0;
+      font-size: clamp(1.5rem, 3vw, 2.15rem);
+      line-height: 1.04;
+      color: #4f2414;
+    }
+
+    .feature-caption {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--ink);
+    }
+
+    .score-boxes,
+    .summary-grid,
+    .chart-grid,
+    .analysis-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .score-boxes {
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      margin-top: 18px;
+    }
+
+    .score-box,
+    .summary-card,
+    .chart-card {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.82);
+      padding: 18px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+    }
+
+    .score-box strong,
+    .summary-card h3 {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .score-box strong {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+    }
+
+    .score-box span {
+      font-size: 1.5rem;
+      font-weight: 800;
+    }
+
+    .summary-grid {
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+
+    .summary-card {
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(252, 245, 241, 0.92));
+    }
+
+    .summary-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 5px;
+      background: linear-gradient(180deg, var(--red-2), var(--red-4));
+    }
+
+    .chart-grid {
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    }
+
+    .analysis-grid {
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      margin-top: 18px;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: end;
+      margin-bottom: 14px;
+    }
+
+    .section-header h2 {
+      font-size: clamp(1.6rem, 2.5vw, 2.3rem);
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+    }
+
+    .section-header p {
+      max-width: 40ch;
+      font-size: 0.98rem;
+    }
+
+    .metric {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 0;
+      border-top: 1px solid rgba(221, 213, 201, 0.8);
+      color: var(--muted);
+    }
+
+    .metric:first-of-type {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .metric strong {
+      color: var(--ink);
+    }
+
+    .chart-card p {
+      margin-bottom: 12px;
+    }
+
+    .chart-wrap {
+      position: relative;
+      height: 280px;
+      margin-top: 12px;
+    }
+
+    .wide-chart .chart-wrap {
+      height: 340px;
+    }
+
+    .analysis-card {
+      padding: 22px 24px;
+      border-radius: 22px;
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(247, 243, 236, 0.92)),
+        radial-gradient(circle at top right, rgba(49, 86, 69, 0.08), transparent 30%);
+    }
+
+    .analysis-card.primary {
+      background:
+        linear-gradient(180deg, rgba(247, 250, 247, 0.98), rgba(236, 242, 237, 0.92)),
+        radial-gradient(circle at top right, rgba(49, 86, 69, 0.1), transparent 34%);
+      border-color: rgba(49, 86, 69, 0.16);
+    }
+
+    .analysis-card.debrief {
+      background:
+        linear-gradient(180deg, rgba(255, 249, 244, 0.98), rgba(248, 239, 232, 0.92)),
+        radial-gradient(circle at top right, rgba(154, 52, 18, 0.1), transparent 34%);
+      border-color: rgba(154, 52, 18, 0.16);
+    }
+
+    .analysis-label {
+      margin: 0 0 10px;
+      font-size: 0.78rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .analysis-card h2 {
+      margin-bottom: 12px;
+      font-size: clamp(1.45rem, 3vw, 2rem);
+      line-height: 1.1;
+      color: #202724;
+    }
+
+    .analysis-copy {
+      font-size: clamp(1.15rem, 2vw, 1.45rem);
+      line-height: 1.35;
+      color: var(--ink);
+    }
+
+    .summary-card h3,
+    .chart-card h3,
+    .chart-card h2 {
+      letter-spacing: -0.02em;
+    }
+
+    .chart-card {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .chart-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(154, 52, 18, 0.1), rgba(49, 86, 69, 0.08));
+    }
+
+    .study-note {
+      margin-top: 14px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: var(--soft-orange);
+      border: 1px solid rgba(154, 52, 18, 0.16);
+      color: #7b2d12;
+    }
+
+    .condition-narrative {
+      grid-column: 1 / -1;
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+      padding: 18px 20px;
+      border-radius: 18px;
+      border: 1px solid rgba(185, 28, 28, 0.14);
+      background:
+        linear-gradient(180deg, rgba(255, 250, 249, 0.98), rgba(250, 240, 236, 0.94)),
+        radial-gradient(circle at top right, rgba(185, 28, 28, 0.08), transparent 34%);
+    }
+
+    .condition-narrative strong {
+      color: var(--ink);
+    }
+
+    .condition-lead {
+      margin: 0 0 2px;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--accent-deep);
+    }
+
+    .debrief-intro {
+      margin-bottom: 14px;
+      color: var(--ink);
+    }
+
+    .debrief-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .debrief-stat {
+      border-radius: 16px;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(154, 52, 18, 0.12);
+    }
+
+    .debrief-stat strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+
+    .debrief-stat span {
+      display: block;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .chart-card.comparison {
+      background:
+        linear-gradient(180deg, rgba(255, 252, 251, 0.98), rgba(250, 241, 237, 0.94)),
+        radial-gradient(circle at top right, rgba(185, 28, 28, 0.08), transparent 34%);
+    }
+
+    .chart-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--red-1);
+      background: var(--red-soft);
+      border: 1px solid rgba(185, 28, 28, 0.12);
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 14px 20px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .primary {
+      background: linear-gradient(135deg, #9a3412, #c2410c);
+      color: #fff;
+    }
+
+    .secondary {
+      background: #fff;
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+
+    .empty {
+      padding: 16px 18px;
+      border-radius: 18px;
+      background: rgba(154, 52, 18, 0.08);
+      border: 1px solid rgba(154, 52, 18, 0.16);
+      color: #7b2d12;
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 12px;
+      }
+
+      .panel {
+        padding: 22px;
+      }
+
+      .actions {
+        display: grid;
+      }
+
+      button {
+        width: 100%;
+      }
+
+      .chart-wrap,
+      .wide-chart .chart-wrap {
+        height: 250px;
+      }
+
+      .analysis-card {
+        padding: 20px;
+      }
+    }
+
+    @media (max-width: 860px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="panel">
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow">Experiment Results</p>
+          <h1 id="headline">Your session summary</h1>
+          <p id="intro-text">
+            The comparisons below are based on your real, non-practice trials.
+            In group rounds, score impact reflects how your choices changed the
+            shared team total.
+          </p>
+        </div>
+
+        <aside class="feature-card">
+          <p class="feature-label">Featured Takeaway</p>
+          <h2 class="feature-tagline" id="feature-tagline">
+            Your overall pattern will appear here.
+          </h2>
+          <p class="feature-caption" id="feature-caption">
+            This card highlights the clearest story from your risk-taking pattern.
+          </p>
+        </aside>
+      </div>
+
+      <div class="score-boxes">
+        <div class="score-box">
+          <strong>Participant</strong>
+          <span id="participant-name">-</span>
+        </div>
+        <div class="score-box">
+          <strong>Questionnaire Total</strong>
+          <span id="questionnaire-total">-</span>
+        </div>
+        <div class="score-box">
+          <strong>Questionnaire Average</strong>
+          <span id="questionnaire-average">-</span>
+        </div>
+        <div class="score-box">
+          <strong>Overall Behavioral Risk</strong>
+          <span id="behavioral-risk-overall">-</span>
+        </div>
+      </div>
+
+      <div class="analysis-grid">
+        <article class="analysis-card primary">
+          <p class="analysis-label">Interpretation</p>
+          <h2>What Your Pattern Suggests</h2>
+          <p class="analysis-copy" id="insight-box">
+            Your interpretation will appear here after the app compares your
+            individual and group rounds.
+          </p>
+        </article>
+
+        <article class="analysis-card debrief">
+          <p class="analysis-label">Debrief</p>
+          <h2>Study Setup</h2>
+          <p class="analysis-copy" id="debrief-box">
+            Your debrief note will appear here after the results page checks the
+            current study data.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-header">
+        <div>
+          <p class="eyebrow">Core Measures</p>
+          <h2>Condition Statistics</h2>
+        </div>
+        <p>These summary values capture how your choices changed across acting alone and acting in groups.</p>
+      </div>
+      <div class="summary-grid" id="summary-grid"></div>
+    </section>
+
+    <section class="panel">
+      <div class="section-header">
+        <div>
+          <p class="eyebrow">Comparison Charts</p>
+          <h2>Risk Score Comparison</h2>
+        </div>
+        <p>These views compare your self-description, your task behavior, and how that behavior shifted across conditions.</p>
+      </div>
+      <div class="chart-grid">
+        <article class="chart-card comparison">
+          <div class="chart-kicker">Comparison View</div>
+          <h3>Self-Report vs Behavioral Risk</h3>
+          <p>
+            This chart compares how risk-taking you described yourself to be
+            against how risk-taking your actual task behavior appears.
+          </p>
+          <div class="chart-wrap">
+            <canvas id="risk-comparison-chart"></canvas>
+          </div>
+        </article>
+
+        <article class="chart-card comparison">
+          <div class="chart-kicker">Comparison View</div>
+          <h3>Condition Comparison</h3>
+          <p>
+            Adjusted pumps are averaged from successful cash-out trials only,
+            which is the standard behavioral risk measure in this task.
+          </p>
+          <div class="chart-wrap">
+            <canvas id="condition-comparison-chart"></canvas>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-header">
+        <div>
+          <p class="eyebrow">Distributions</p>
+          <h2>Behavior In Context</h2>
+        </div>
+        <p>These histograms show both your trial-by-trial pump pattern and where your overall risk falls in the wider sample.</p>
+      </div>
+      <div class="chart-grid">
+        <article class="chart-card wide-chart">
+          <h2>Histogram of Your Trial Pumps</h2>
+          <p>
+            The chart below shows how often each pump count occurred across your
+            real trials in the individual, group of 3, and group of 6
+            conditions.
+          </p>
+          <div class="chart-wrap">
+            <canvas id="histogram-chart"></canvas>
+          </div>
+        </article>
+
+        <article class="chart-card wide-chart">
+          <h2>All Participants Behavioral Risk</h2>
+          <p>
+            This study-wide distribution uses overall behavioral risk values
+            from the Participants sheet. Your score is highlighted on the chart.
+          </p>
+          <div class="chart-wrap">
+            <canvas id="participants-chart"></canvas>
+          </div>
+          <div class="study-note" id="participants-note">
+            Study-wide comparison will appear here if the Google Apps Script
+            endpoint supports JSON responses from <code>doGet()</code>.
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Next Step</h2>
+      <p>
+        You can restart the experiment with a fresh sequence or return to the
+        opening page and keep your current participant identity.
+      </p>
+      <div class="actions">
+        <button class="primary" id="restart-button">Run Again</button>
+        <button class="secondary" id="home-button">Back to Entry Page</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwm6Eb-i1hUGfEKWKoBB0eA9WibZVuWzCih7Au3BiIPscuGSE-z6GNkqwo6_-h35Hl1/exec";
+    const participant = JSON.parse(localStorage.getItem("bartParticipant") || "null");
+    const questionnaire = JSON.parse(localStorage.getItem("bartQuestionnaire") || "null");
+    const storedTrials = JSON.parse(localStorage.getItem("bartTrials") || "[]");
+
+    const participantName = document.getElementById("participant-name");
+    const questionnaireTotal = document.getElementById("questionnaire-total");
+    const questionnaireAverage = document.getElementById("questionnaire-average");
+    const behavioralRiskOverall = document.getElementById("behavioral-risk-overall");
+    const summaryGrid = document.getElementById("summary-grid");
+    const insightBox = document.getElementById("insight-box");
+    const debriefBox = document.getElementById("debrief-box");
+    const featureTagline = document.getElementById("feature-tagline");
+    const featureCaption = document.getElementById("feature-caption");
+    const participantsNote = document.getElementById("participants-note");
+    const restartButton = document.getElementById("restart-button");
+    const homeButton = document.getElementById("home-button");
+
+    const CONDITIONS = [
+      { key: "individual", label: "Individual", color: "#315645" },
+      { key: "group_3", label: "Group of 3", color: "#9a3412" },
+      { key: "group_6", label: "Group of 6", color: "#1d4ed8" }
+    ];
+
+    const BEHAVIOR_SCORE_MAX = 10;
+    const PARTICIPANT_BIN_SIZE = 0.25;
+
+    Chart.defaults.color = "#55615b";
+    Chart.defaults.font.family = '"Red Hat Text", "Segoe UI", sans-serif';
+    Chart.defaults.font.size = 13;
+    Chart.defaults.plugins.legend.labels.usePointStyle = true;
+    Chart.defaults.plugins.legend.labels.boxWidth = 12;
+    Chart.defaults.plugins.legend.labels.boxHeight = 12;
+    Chart.defaults.scale.grid.color = "rgba(103, 113, 108, 0.12)";
+    Chart.defaults.scale.grid.drawBorder = false;
+    Chart.defaults.scale.ticks.color = "#67716c";
+    Chart.defaults.plugins.tooltip.backgroundColor = "rgba(255, 252, 247, 0.96)";
+    Chart.defaults.plugins.tooltip.titleColor = "#202724";
+    Chart.defaults.plugins.tooltip.bodyColor = "#202724";
+    Chart.defaults.plugins.tooltip.borderColor = "rgba(221, 213, 201, 0.95)";
+    Chart.defaults.plugins.tooltip.borderWidth = 1;
+    Chart.defaults.plugins.tooltip.padding = 12;
+    Chart.defaults.plugins.tooltip.cornerRadius = 10;
+    if (window["chartjs-plugin-annotation"]) {
+      Chart.register(window["chartjs-plugin-annotation"]);
+    }
+
+    function normalizeConditionKey(conditionKey) {
+      if (conditionKey === "small_group") {
+        return "group_3";
+      }
+      if (conditionKey === "large_group") {
+        return "group_6";
+      }
+      return conditionKey;
+    }
+
+    const allTrials = storedTrials.map((trial) => ({
+      ...trial,
+      condition: normalizeConditionKey(trial.condition)
+    }));
+
+    const realTrials = allTrials.filter((trial) => !trial.isPractice && trial.participantType === "human");
+
+    participantName.textContent = participant?.displayName || "Unknown";
+    questionnaireTotal.textContent = questionnaire ? questionnaire.totalScore.toFixed(2) : "-";
+    questionnaireAverage.textContent = questionnaire ? questionnaire.averageScore.toFixed(2) : "-";
+
+    function average(values) {
+      if (!values.length) {
+        return 0;
+      }
+      return values.reduce((sum, value) => sum + value, 0) / values.length;
+    }
+
+    function percentFromFivePointScale(value) {
+      if (!Number.isFinite(value)) {
+        return 0;
+      }
+      return ((value - 1) / 4) * 100;
+    }
+
+    function toNumber(value) {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : null;
+    }
+
+    function clamp(value, min, max) {
+      return Math.min(max, Math.max(min, value));
+    }
+
+    function computeConditionSummary(conditionKey) {
+      const rows = realTrials.filter((trial) => trial.condition === conditionKey);
+      const nonPopped = rows.filter((trial) => !trial.popped);
+      const adjustedPumps = average(nonPopped.map((trial) => Number(trial.pumps) || 0));
+      const popRate = rows.length ? rows.filter((trial) => trial.popped).length / rows.length : 0;
+      const averageCashOut = average(nonPopped.map((trial) => Number(trial.points) || 0));
+      const totalScore = rows.reduce((sum, trial) => {
+        if (conditionKey === "individual") {
+          return sum + (Number(trial.points) || 0);
+        }
+        return sum + (Number(trial.teamDelta) || 0);
+      }, 0);
+
+      return {
+        rows,
+        adjustedPumps,
+        popRate,
+        averageCashOut,
+        totalScore
+      };
+    }
+
+    const summaries = CONDITIONS.map((condition) => ({
+      ...condition,
+      ...computeConditionSummary(condition.key)
+    }));
+
+    const individualSummary = summaries.find((summary) => summary.key === "individual") || {};
+    const group3Summary = summaries.find((summary) => summary.key === "group_3") || {};
+    const group6Summary = summaries.find((summary) => summary.key === "group_6") || {};
+    const overallBehavioralRisk = average(summaries.map((summary) => summary.adjustedPumps || 0));
+    const selfReportPercent = percentFromFivePointScale(questionnaire?.averageScore || 0);
+    const behaviorPercent = clamp(((overallBehavioralRisk || 0) / BEHAVIOR_SCORE_MAX) * 100, 0, 100);
+    const differenceSelfReportVsBehavior = selfReportPercent - behaviorPercent;
+
+    behavioralRiskOverall.textContent = realTrials.length ? overallBehavioralRisk.toFixed(2) : "-";
+
+    function renderSummaries() {
+      if (!realTrials.length) {
+        summaryGrid.innerHTML = '<div class="empty">No real-round trial data was found yet. Complete all rounds to see the final comparison.</div>';
+        return;
+      }
+
+      summaryGrid.innerHTML = "";
+
+      summaries.forEach((summary) => {
+        const card = document.createElement("article");
+        card.className = "summary-card";
+        card.innerHTML = `
+          <h3 style="color: ${summary.color};">${summary.label}</h3>
+          <div class="metric"><span>Adjusted pumps</span><strong>${summary.adjustedPumps.toFixed(2)}</strong></div>
+          <div class="metric"><span>Pop rate</span><strong>${(summary.popRate * 100).toFixed(1)}%</strong></div>
+          <div class="metric"><span>Average cash-out points</span><strong>${summary.averageCashOut.toFixed(2)}</strong></div>
+          <div class="metric"><span>${summary.key === "individual" ? "Total score" : "Team score impact"}</span><strong>${summary.totalScore.toFixed(2)}</strong></div>
+        `;
+        summaryGrid.appendChild(card);
+      });
+
+      const highestRiskSummary = summaries.reduce((best, current) => (
+        (current.adjustedPumps || 0) > (best.adjustedPumps || 0) ? current : best
+      ), summaries[0]);
+      const lowestRiskSummary = summaries.reduce((best, current) => (
+        (current.adjustedPumps || 0) < (best.adjustedPumps || 0) ? current : best
+      ), summaries[0]);
+      const mostSuccessfulSummary = summaries.reduce((best, current) => (
+        (current.averageCashOut || 0) > (best.averageCashOut || 0) ? current : best
+      ), summaries[0]);
+      const immediateFailureConditions = summaries.filter(
+        (summary) => summary.rows.length && summary.popRate === 1 && summary.adjustedPumps === 0
+      );
+
+      const narrative = document.createElement("article");
+      narrative.className = "condition-narrative";
+
+      let failureSentence = "";
+      if (immediateFailureConditions.length) {
+        const labels = immediateFailureConditions.map((summary) => summary.label);
+        const joined = labels.length === 1
+          ? labels[0]
+          : `${labels.slice(0, -1).join(", ")}${labels.length > 2 ? "," : ""} and ${labels[labels.length - 1]}`;
+        failureSentence = ` ${joined} showed a 100% pop rate with no successful cash-outs, which points to immediate balloon failures or consistently unsuccessful trials in those settings.`;
+      }
+
+      const successSentence = mostSuccessfulSummary.rows.length
+        ? `${mostSuccessfulSummary.label} was the most successful condition, with a ${(mostSuccessfulSummary.popRate * 100).toFixed(1)}% pop rate and ${mostSuccessfulSummary.averageCashOut.toFixed(2)} average cash-out points.`
+        : "No successful cash-out pattern was available yet.";
+
+      narrative.innerHTML = `
+        <p class="condition-lead">Quick Read</p>
+        <p><strong>Risk-Taking Behavior by Condition:</strong> Your willingness to pump varied across conditions. The highest adjusted risk-taking appeared in <strong>${highestRiskSummary.label}</strong> at ${highestRiskSummary.adjustedPumps.toFixed(2)} average adjusted pumps, while <strong>${lowestRiskSummary.label}</strong> was lowest at ${lowestRiskSummary.adjustedPumps.toFixed(2)}.</p>
+        <p><strong>Success vs. Failure Rates:</strong> ${successSentence}${failureSentence}</p>
+        <p><strong>Performance and Points:</strong> <strong>${mostSuccessfulSummary.label}</strong> produced the highest average points at ${mostSuccessfulSummary.averageCashOut.toFixed(2)} per successful trial. ${summaries.map((summary) => `${summary.label}: ${summary.averageCashOut.toFixed(2)}`).join(" · ")}.</p>
+      `;
+      summaryGrid.appendChild(narrative);
+    }
+
+    function makeChart(canvasId, config) {
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) {
+        return null;
+      }
+
+      return new Chart(canvas, {
+        ...config,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: {
+            duration: 700
+          },
+          ...config.options
+        }
+      });
+    }
+
+    function renderRiskComparisonChart() {
+      if (!realTrials.length) {
+        return;
+      }
+
+      makeChart("risk-comparison-chart", {
+        type: "bar",
+        data: {
+          labels: ["Self-Reported Risk", "Behavioral Risk"],
+          datasets: [{
+            data: [selfReportPercent, behaviorPercent],
+            backgroundColor: ["#f97316", "#b91c1c"],
+            borderRadius: 8
+          }]
+        },
+        options: {
+          plugins: {
+            legend: {
+              display: false
+            },
+            title: {
+              display: true,
+              text: "Self-Report vs Behavioral Risk"
+            },
+            tooltip: {
+              callbacks: {
+                label(context) {
+                  return `${context.label}: ${context.raw.toFixed(1)} / 100`;
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100,
+              title: {
+                display: true,
+                text: "Risk Score"
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function renderConditionComparisonChart() {
+      if (!realTrials.length) {
+        return;
+      }
+
+      makeChart("condition-comparison-chart", {
+        type: "bar",
+        data: {
+          labels: CONDITIONS.map((condition) => condition.label),
+          datasets: [{
+            label: "Adjusted Pumps",
+            data: summaries.map((summary) => summary.adjustedPumps),
+            backgroundColor: ["#7f1d1d", "#b91c1c", "#dc2626"],
+            borderRadius: 8
+          }]
+        },
+        options: {
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              callbacks: {
+                label(context) {
+                  return `Adjusted pumps: ${context.raw.toFixed(2)}`;
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: "Adjusted Pumps"
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function renderParticipantHistogram() {
+      if (!realTrials.length) {
+        return;
+      }
+
+      const maxPump = Math.max(1, ...realTrials.map((trial) => Number(trial.pumps) || 0));
+      const labels = Array.from({ length: maxPump + 1 }, (_, index) => String(index));
+      const histogramColors = {
+        individual: "rgba(127, 29, 29, 0.78)",
+        group_3: "rgba(185, 28, 28, 0.82)",
+        group_6: "rgba(220, 38, 38, 0.86)"
+      };
+
+      const datasets = CONDITIONS.map((condition) => ({
+        label: condition.label,
+        data: labels.map((label) => {
+          const pumpValue = Number(label);
+          return realTrials.filter(
+            (trial) => trial.condition === condition.key && Number(trial.pumps) === pumpValue
+          ).length;
+        }),
+        backgroundColor: histogramColors[condition.key] || "#dc2626",
+        borderRadius: 6
+      }));
+
+      makeChart("histogram-chart", {
+        type: "bar",
+        data: {
+          labels,
+          datasets
+        },
+        options: {
+          plugins: {
+            legend: {
+              position: "bottom"
+            }
+          },
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: "Pump Count"
+              }
+            },
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: "Frequency"
+              },
+              ticks: {
+                precision: 0
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function extractParticipantRows(payload) {
+      if (Array.isArray(payload)) {
+        return payload;
+      }
+
+      if (Array.isArray(payload?.rows)) {
+        return payload.rows;
+      }
+
+      if (Array.isArray(payload?.data)) {
+        return payload.data;
+      }
+
+      if (Array.isArray(payload?.participants)) {
+        return payload.participants;
+      }
+
+      return [];
+    }
+
+    async function fetchParticipantRows() {
+      if (!/^https:\/\//.test(SCRIPT_URL)) {
+        return [];
+      }
+
+      try {
+        // Apps Script must implement doGet() that returns JSON rows from the Participants sheet.
+        const response = await fetch(`${SCRIPT_URL}?sheet=Participants`, {
+          method: "GET",
+          headers: {
+            Accept: "application/json"
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`GET failed with status ${response.status}`);
+        }
+
+        const payload = await response.json();
+        return extractParticipantRows(payload);
+      } catch (error) {
+        console.warn("Participant comparison data is not available yet.", error);
+        return [];
+      }
+    }
+
+    function summarizeRelativePosition(values, ownValue) {
+      if (!values.length) {
+        return null;
+      }
+
+      const sorted = [...values].sort((a, b) => a - b);
+      const percentile = calculatePercentile(ownValue, sorted);
+      const averageValue = average(sorted);
+
+      return {
+        averageValue,
+        percentile,
+        aboveAverage: ownValue > averageValue
+      };
+    }
+
+    function calculatePercentile(yourScore, allScores) {
+      if (!allScores.length) {
+        return 0;
+      }
+
+      const below = allScores.filter((score) => score < yourScore).length;
+      const equal = allScores.filter((score) => score === yourScore).length;
+      return ((below + 0.5 * equal) / allScores.length) * 100;
+    }
+
+    function getPercentileDescriptor(percentile) {
+      if (percentile > 90) {
+        return "among the highest in the sample";
+      }
+      if (percentile > 75) {
+        return "above average";
+      }
+      if (percentile > 25) {
+        return "around average";
+      }
+      return "below average";
+    }
+
+    function describeQuestionnaireLevel(value) {
+      if (!Number.isFinite(value)) {
+        return "unavailable";
+      }
+      if (value < 2.5) {
+        return "relatively cautious";
+      }
+      if (value > 3.5) {
+        return "relatively risk-seeking";
+      }
+      return "around average";
+    }
+
+    function describeBehaviorLevel(value) {
+      if (!Number.isFinite(value)) {
+        return "unavailable";
+      }
+      if (value < 3.5) {
+        return "relatively cautious";
+      }
+      if (value > 6.5) {
+        return "relatively risk-seeking";
+      }
+      return "around average";
+    }
+
+    function renderDebriefStats(stats) {
+      return `
+        <div class="debrief-stats">
+          ${stats.map((stat) => `
+            <div class="debrief-stat">
+              <strong>${stat.label}</strong>
+              <span>${stat.value}</span>
+            </div>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function renderDebrief(participantValues) {
+      if (!realTrials.length) {
+        debriefBox.textContent = "Complete the real rounds to view the study debrief.";
+        return;
+      }
+
+      if (!participantValues.length) {
+        const questionnaireAverageValue = questionnaire?.averageScore || 0;
+        debriefBox.innerHTML = `
+          <p class="debrief-intro">The group rounds used simulated players, not live participants, so the social setting stayed consistent across sessions.</p>
+          ${renderDebriefStats([
+            { label: "Behavioral Risk", value: `${overallBehavioralRisk.toFixed(2)} / ${BEHAVIOR_SCORE_MAX}` },
+            { label: "Behavior Label", value: describeBehaviorLevel(overallBehavioralRisk) },
+            { label: "Questionnaire", value: `${questionnaireAverageValue.toFixed(2)} / 5` },
+            { label: "Self-Report", value: describeQuestionnaireLevel(questionnaireAverageValue) }
+          ])}
+        `;
+        return;
+      }
+
+      const sampleAverage = average(participantValues);
+      const sampleSize = participantValues.length;
+      const questionnaireAverageValue = questionnaire?.averageScore || 0;
+      const ownBehaviorLabel = describeBehaviorLevel(overallBehavioralRisk);
+      const questionnaireLabel = describeQuestionnaireLevel(questionnaireAverageValue);
+      const percentile = calculatePercentile(overallBehavioralRisk, participantValues);
+      const percentileRounded = Math.round(percentile);
+
+      debriefBox.innerHTML = `
+        <p class="debrief-intro">The group rounds used simulated players, not live participants, so everyone saw the same social context and the individual-versus-group comparison stayed controlled.</p>
+        ${renderDebriefStats([
+          { label: "Your Risk", value: `${overallBehavioralRisk.toFixed(2)} / ${BEHAVIOR_SCORE_MAX}` },
+          { label: "Sample Avg", value: `${sampleAverage.toFixed(2)} / ${BEHAVIOR_SCORE_MAX}` },
+          { label: "Percentile", value: `${percentileRounded}th` },
+          { label: "Questionnaire", value: `${questionnaireAverageValue.toFixed(2)} / 5` }
+        ])}
+        <p style="margin-top: 12px;">Your task behavior looked <strong>${ownBehaviorLabel}</strong>, and your self-report looked <strong>${questionnaireLabel}</strong>, based on the current sample of ${sampleSize} participant${sampleSize === 1 ? "" : "s"}.</p>
+      `;
+    }
+
+    function renderParticipantsChart(participantValues) {
+      if (!participantValues.length || !realTrials.length) {
+        participantsNote.textContent = "Study-wide comparison is unavailable right now. If needed, update Apps Script doGet() so it returns JSON rows from the Participants sheet.";
+        return null;
+      }
+
+      const currentScore = overallBehavioralRisk;
+      const mean = average(participantValues);
+      const percentile = calculatePercentile(currentScore, participantValues);
+      const percentileRounded = Math.round(percentile);
+      const descriptor = getPercentileDescriptor(percentile);
+      const maxScore = Math.max(PARTICIPANT_BIN_SIZE, overallBehavioralRisk, ...participantValues);
+      const binEdges = [];
+      for (let i = 0; i <= maxScore + PARTICIPANT_BIN_SIZE; i += PARTICIPANT_BIN_SIZE) {
+        binEdges.push(Number(i.toFixed(2)));
+      }
+
+      const barData = [];
+      const labels = [];
+      binEdges.slice(0, -1).forEach((start, index) => {
+        const end = binEdges[index + 1];
+        labels.push(`${start.toFixed(2)}-${end.toFixed(2)}`);
+        const count = participantValues.filter((value) => value >= start && value < end).length;
+        barData.push({
+          x: Number((start + PARTICIPANT_BIN_SIZE / 2).toFixed(3)),
+          y: count
+        });
+      });
+
+      const currentBinIndex = labels.findIndex((_, index) => {
+        const start = binEdges[index];
+        const end = binEdges[index + 1];
+        const isLastBin = index === labels.length - 1;
+        if (isLastBin) {
+          return currentScore >= start && currentScore <= end;
+        }
+        return currentScore >= start && currentScore < end;
+      });
+
+      const backgroundColor = barData.map((_, index) =>
+        index === currentBinIndex ? "#7f1d1d" : "#dc2626"
+      );
+
+      makeChart("participants-chart", {
+        type: "bar",
+        data: {
+          datasets: [{
+            label: "Participants",
+            data: barData,
+            backgroundColor,
+            borderRadius: 6,
+            borderSkipped: false,
+            barThickness: 18
+          }]
+        },
+        options: {
+          parsing: false,
+          plugins: {
+            legend: {
+              display: false
+            },
+            annotation: {
+              annotations: {
+                youLine: {
+                  type: "line",
+                  xMin: currentScore,
+                  xMax: currentScore,
+                  borderColor: "#c2410c",
+                  borderWidth: 3,
+                  label: {
+                    display: true,
+                    content: "You",
+                    position: "start",
+                    backgroundColor: "#c2410c",
+                    color: "#202724",
+                    padding: 6
+                  }
+                }
+              }
+            },
+            tooltip: {
+              callbacks: {
+                title(items) {
+                  const index = items[0].dataIndex;
+                  return labels[index];
+                },
+                label(context) {
+                  return `${context.raw.y} participant${context.raw.y === 1 ? "" : "s"}`;
+                },
+                afterBody(items) {
+                  const item = items[0];
+                  if (item.dataIndex === currentBinIndex) {
+                    return ["You are here"];
+                  }
+                  return [];
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              type: "linear",
+              min: 0,
+              max: Math.ceil((maxScore + 0.25) * 4) / 4,
+              title: {
+                display: true,
+                text: "Overall Behavioral Risk"
+              },
+              ticks: {
+                stepSize: 0.25
+              }
+            },
+            y: {
+              beginAtZero: true,
+              ticks: {
+                precision: 0
+              },
+              title: {
+                display: true,
+                text: "Number of Participants"
+              }
+            }
+          }
+        }
+      });
+
+      const relative = summarizeRelativePosition(participantValues, overallBehavioralRisk);
+      if (relative) {
+        participantsNote.textContent = `Your overall behavioral risk was ${currentScore.toFixed(2)}. That places you around the ${percentileRounded}th percentile of the available sample, meaning your risk-taking was ${descriptor}. The current study average is ${mean.toFixed(2)}.`;
+      }
+
+      return relative;
+    }
+
+    function renderInsight(relativePosition) {
+      if (!realTrials.length) {
+        insightBox.textContent = "Complete the three real rounds to generate an interpretation.";
+        featureTagline.textContent = "Your overall pattern will appear here.";
+        featureCaption.textContent = "This card highlights the clearest story from your risk-taking pattern.";
+        return;
+      }
+
+      const orderedTrials = [...realTrials].sort((a, b) => {
+        const roundDifference = (Number(a.round) || 0) - (Number(b.round) || 0);
+        if (roundDifference !== 0) {
+          return roundDifference;
+        }
+        return (Number(a.trial) || 0) - (Number(b.trial) || 0);
+      });
+      const midpoint = Math.max(1, Math.ceil(orderedTrials.length / 2));
+      const firstHalf = orderedTrials.slice(0, midpoint);
+      const secondHalf = orderedTrials.slice(midpoint);
+      const firstHalfPumps = average(firstHalf.map((trial) => Number(trial.pumps) || 0));
+      const secondHalfPumps = average(secondHalf.map((trial) => Number(trial.pumps) || 0));
+      const learningShift = secondHalfPumps - firstHalfPumps;
+      const successfulTrials = realTrials.filter((trial) => !trial.popped);
+      const cashOutRate = successfulTrials.length / realTrials.length;
+      const postPopTransitions = orderedTrials
+        .map((trial, index) => {
+          if (!orderedTrials[index - 1]?.popped) {
+            return null;
+          }
+          return (Number(trial.pumps) || 0) - (Number(orderedTrials[index - 1].pumps) || 0);
+        })
+        .filter((value) => value !== null);
+      const postPopAdjustment = average(postPopTransitions);
+      const groupAverage = average([
+        group3Summary.adjustedPumps || 0,
+        group6Summary.adjustedPumps || 0
+      ]);
+      const socialDifference = groupAverage - (individualSummary.adjustedPumps || 0);
+
+      let headlineText = "Your decisions look flexible rather than extreme.";
+      let captionText = "The clearest pattern is how your risk-taking shifted with context, reward, and feedback.";
+      let rewardText = `Your adjusted pumps averaged ${overallBehavioralRisk.toFixed(2)}, which suggests you valued the potential reward but were not simply pushing every balloon to the limit.`;
+      if (overallBehavioralRisk >= 6.5) {
+        headlineText = "Reward seemed especially motivating for you.";
+        captionText = "Higher adjusted pumps suggest a stronger pull toward possible gains.";
+        rewardText = `Your adjusted pumps averaged ${overallBehavioralRisk.toFixed(2)}, which points to strong reward valuation and a willingness to keep pushing when a bigger payoff felt possible.`;
+      } else if (overallBehavioralRisk <= 3.5) {
+        headlineText = "You leaned cautious even when reward was available.";
+        captionText = "Your behavior favored protecting points over stretching for larger gains.";
+        rewardText = `Your adjusted pumps averaged ${overallBehavioralRisk.toFixed(2)}, which suggests the possible reward mattered less than avoiding losses.`;
+      }
+
+      let predictionErrorText = `When balloons popped, your next-trial behavior changed by ${postPopAdjustment.toFixed(2)} pumps on average, which suggests you were using surprising outcomes as feedback rather than ignoring them.`;
+      if (!postPopTransitions.length) {
+        predictionErrorText = `Because there were very few pop-to-next-trial transitions, prediction error is harder to read cleanly here, but your pop rates still contributed to the overall pattern across conditions.`;
+      } else if (postPopAdjustment <= -0.5) {
+        predictionErrorText = `After a pop, your next trial dropped by ${Math.abs(postPopAdjustment).toFixed(2)} pumps on average, so prediction error seemed to make you recalibrate quickly.`;
+      } else if (postPopAdjustment >= 0.5) {
+        predictionErrorText = `After a pop, your next trial still increased by ${postPopAdjustment.toFixed(2)} pumps on average, suggesting surprising losses did not strongly pull you back.`;
+      }
+
+      let learningText = `Across the task, your average pumps shifted from ${firstHalfPumps.toFixed(2)} in the first half to ${secondHalfPumps.toFixed(2)} in the second half, which looks more situationally adaptive than rigidly risk-seeking or risk-averse.`;
+      if (learningShift <= -0.75) {
+        learningText = `Across the task, your average pumps moved from ${firstHalfPumps.toFixed(2)} early to ${secondHalfPumps.toFixed(2)} later, which suggests learning under uncertainty pushed you toward more caution as evidence accumulated.`;
+      } else if (learningShift >= 0.75) {
+        learningText = `Across the task, your average pumps rose from ${firstHalfPumps.toFixed(2)} early to ${secondHalfPumps.toFixed(2)} later, which suggests you grew more confident in tolerating uncertainty over time.`;
+      }
+
+      let controlText = `You cashed out on ${(cashOutRate * 100).toFixed(1)}% of real trials, so the overall pattern looks more like calculated risk than pure reward-seeking.`;
+      if (cashOutRate < 0.4) {
+        controlText = `You cashed out on ${(cashOutRate * 100).toFixed(1)}% of real trials, which leans more toward reward-seeking than cognitive control.`;
+      } else if (cashOutRate > 0.7) {
+        controlText = `You cashed out on ${(cashOutRate * 100).toFixed(1)}% of real trials, showing fairly strong cognitive control even while still chasing points when it seemed worth it.`;
+      }
+
+      let socialText = `Your individual adjusted pumps were ${(individualSummary.adjustedPumps || 0).toFixed(2)} compared with a group average of ${groupAverage.toFixed(2)}, so social context did not radically change your behavior.`;
+      if (socialDifference < -0.5) {
+        headlineText = "Shared responsibility seemed to make you more cautious.";
+        captionText = "Your individual condition was riskier than your group behavior.";
+        socialText = `Your individual adjusted pumps were ${(individualSummary.adjustedPumps || 0).toFixed(2)}, but your group average fell to ${groupAverage.toFixed(2)}, which suggests social modulation in a more cautious direction when responsibility was shared.`;
+      } else if (socialDifference > 0.5) {
+        headlineText = "The group setting seemed to loosen your risk threshold.";
+        captionText = "You took more risk when outcomes were shared.";
+        socialText = `Your individual adjusted pumps were ${(individualSummary.adjustedPumps || 0).toFixed(2)}, while your group average rose to ${groupAverage.toFixed(2)}, suggesting the social context nudged you toward more reward-seeking behavior.`;
+      }
+
+      let selfVsBehaviorText = "Your self-report and task behavior were fairly well aligned.";
+      if (differenceSelfReportVsBehavior > 8) {
+        selfVsBehaviorText = "Your self-report was a bit higher than your task behavior, so you may slightly overestimate your own risk tolerance.";
+      } else if (differenceSelfReportVsBehavior < -8) {
+        selfVsBehaviorText = "Your task behavior came out riskier than your self-report, suggesting you acted a little bolder than you describe yourself.";
+      }
+
+      let relativeText = "Study-wide comparison data was not available, so this interpretation is based on your within-session pattern.";
+      if (relativePosition) {
+        const descriptor = getPercentileDescriptor(relativePosition.percentile);
+        relativeText = `Compared with the available sample, your overall behavioral risk was ${descriptor} and sat near the ${Math.round(relativePosition.percentile)}th percentile.`;
+      }
+
+      insightBox.innerHTML = `
+        <p>${rewardText} ${controlText} ${socialText}</p>
+        <p>${predictionErrorText} ${learningText} ${selfVsBehaviorText} ${relativeText}</p>
+      `;
+      featureTagline.textContent = headlineText;
+      featureCaption.textContent = captionText;
+    }
+
+    async function postFinalSummary() {
+      if (!/^https:\/\//.test(SCRIPT_URL) || !participant || !questionnaire || !realTrials.length) {
+        return;
+      }
+
+      const payload = JSON.stringify({
+        type: "summary",
+        participantId: participant.participantId,
+        displayName: participant.displayName,
+        selfReportRiskTotal: questionnaire.totalScore,
+        selfReportRiskAverage: questionnaire.averageScore,
+        behavioralRiskIndividual: individualSummary.adjustedPumps || 0,
+        behavioralRiskGroup3: group3Summary.adjustedPumps || 0,
+        behavioralRiskGroup6: group6Summary.adjustedPumps || 0,
+        overallBehavioralRisk,
+        popRateIndividual: individualSummary.popRate || 0,
+        popRateGroup3: group3Summary.popRate || 0,
+        popRateGroup6: group6Summary.popRate || 0,
+        avgPointsIndividual: individualSummary.averageCashOut || 0,
+        avgPointsGroup3: group3Summary.averageCashOut || 0,
+        avgPointsGroup6: group6Summary.averageCashOut || 0,
+        selfReportPercent,
+        behaviorPercent,
+        differenceSelfReportVsBehavior
+      });
+
+      try {
+        if (navigator.sendBeacon) {
+          const beaconSent = navigator.sendBeacon(
+            SCRIPT_URL,
+            new Blob([payload], { type: "text/plain;charset=utf-8" })
+          );
+          if (beaconSent) {
+            return;
+          }
+        }
+
+        await fetch(SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors",
+          keepalive: true,
+          headers: {
+            "Content-Type": "text/plain;charset=utf-8"
+          },
+          body: payload
+        });
+      } catch (error) {
+        console.warn("Final summary logging failed.", error);
+      }
+    }
+
+    function resetForRestart() {
+      localStorage.removeItem("bartActiveStage");
+      localStorage.removeItem("bartSessionInfo");
+      localStorage.removeItem("bartActiveRoundTrials");
+      localStorage.removeItem("bartTrials");
+      localStorage.removeItem("bartRoundSummaries");
+      localStorage.setItem("bartPracticeComplete", "false");
+      localStorage.setItem("bartRoundIndex", "0");
+      localStorage.setItem("bartCurrentCondition", "practice");
+      localStorage.setItem("bartCurrentRound", "0");
+      if (participant?.wasAutoGeneratedName) {
+        localStorage.removeItem("displayName");
+        localStorage.removeItem("participantId");
+        localStorage.removeItem("bartParticipant");
+        localStorage.removeItem("bartQuestionnaire");
+        window.location.href = "./index.html";
+        return;
+      }
+      window.location.href = "./start.html";
+    }
+
+    restartButton.addEventListener("click", resetForRestart);
+    homeButton.addEventListener("click", () => {
+      window.location.href = "./index.html";
+    });
+
+    async function initializeResults() {
+      renderSummaries();
+      renderRiskComparisonChart();
+      renderConditionComparisonChart();
+      renderParticipantHistogram();
+
+      const participantRows = await fetchParticipantRows();
+      const participantValues = participantRows
+        .map((row) => toNumber(row?.overallBehavioralRisk))
+        .filter((value) => value !== null);
+      const relativePosition = renderParticipantsChart(participantValues);
+      renderInsight(relativePosition);
+      renderDebrief(participantValues);
+      void postFinalSummary();
+    }
+
+    void initializeResults();
+  </script>
+</body>
+</html>
